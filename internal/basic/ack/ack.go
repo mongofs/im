@@ -18,9 +18,24 @@ type ack struct {
 
 	retry int8
 
-	warnCall func(token string,content []byte)error
+	retryTime int64
 
 }
+
+const (
+	DefaultCapacity = 100
+	DefaultRetry =3
+	DefaultRetryTime =5
+)
+
+func New()Acker {
+	return &ack{
+		rw:       sync.RWMutex{},
+		data:     make(map[int64]*unit,DefaultCapacity),
+		retry:   DefaultRetry ,
+	}
+}
+
 
 func (a *ack) AddMessage(token string, sid int64, content []byte) error {
 	a.rw.Lock()
@@ -41,11 +56,6 @@ func (a *ack) DelMessage(sid int64) {
 	a.rw.Lock()
 	defer a.rw.Unlock()
 	delete(a.data,sid)
-}
-
-
-func (a ack) WarnCall(c chan struct{}) {
-	panic("implement me")
 }
 
 

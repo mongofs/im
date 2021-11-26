@@ -5,8 +5,8 @@ import (
 	"errors"
 	"go.uber.org/atomic"
 	"sync"
-	"websocket/internal/ack"
-	"websocket/internal/client"
+	"websocket/internal/basic/ack"
+	"websocket/internal/basic/client"
 )
 
 

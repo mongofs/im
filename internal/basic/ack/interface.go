@@ -25,9 +25,6 @@ type Acker interface {
 	// Delete ack queue data through sid
 	DelMessage(sid int64)
 
-	//Configure the callback function to notify the program calling Acker
-	WarnCall(chan struct{})
-
 	//Set Handle func
-	Handle(func(token string,content []byte)error)
+	Handle(func(token string, content []byte, sid int64)error)
 }

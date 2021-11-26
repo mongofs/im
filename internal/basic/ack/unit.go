@@ -17,5 +17,5 @@ func (u *unit)addCount()int8{
 
 
 func (u *unit)escape ()int64{
-	t
+	return 0
 }

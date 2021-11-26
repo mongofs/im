@@ -1,7 +1,7 @@
 package bucket
 
 import (
-	"websocket/internal/client"
+	"websocket/internal/basic/client"
 )
 
 type Bucketer interface {
