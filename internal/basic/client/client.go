@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
@@ -11,22 +12,13 @@ import (
 
 var (
 	ErrUpgradeBadConn =errors.New("client: conn reader/writer is bad ")
+	ErrhandReceiveIsNil =errors.New("client: handler receive is nil ")
 	ErrConnCreatedError =errors.New("client: create connection is failed ")
 	ErrNoSupplyUserToken =errors.New("client: create connection is failed ")
 	ErrContextNotSupply =errors.New("client: context is not supply ")
 )
 
-type Sender  interface {
-	Send([]byte)
-	SendWithAck([]byte)
-}
 
-// 	client 结构体是为了保存单个用户连接信息内容，包含
-//	conn 用户连接地址
-//	usertoken
-//	ctx 控制goroutine 及时退出的上下文
-//  dataQueue  用户信息缓冲区
-//  用户信息缓存区
 type client struct {
 	// writer
 	writer http.ResponseWriter
@@ -46,15 +38,46 @@ type client struct {
 	buffer chan []byte // length should be 1
 	// close sig
 	closeSig 	chan<- string
+	// handle
+	handleReceive func(cli Clienter,data []byte)
+}
+
+func (c *client) Send(data []byte, i ...int64)error {
+	var sid int64
+	// 这里组装data
+	if len(i) >0 {
+		sid = i[0]
+	}
+
+	basic := Basic{
+		Sid: sid,
+		Msg: data,
+	}
+	d,err := json.Marshal(basic)
+	if err!=nil{
+		return err
+	}
+	c.send(d)
+	return nil
 }
 
 
-const  (
-	DefaultACKLength =8
-)
+func (c *client) send(data []byte) {
+	c.buffer<- data
+}
 
-func New(opt...optionFunc)(*client,error) {
-	res := &client{}
+
+
+func (c *client) Offline() {
+	c.close()
+}
+
+
+
+func New(opt...OptionFunc)(Clienter,error) {
+	res := &client{
+		buffer: make(chan []byte,1),
+	}
 	for _,o := range opt {
 		o(res)
 	}
@@ -62,11 +85,13 @@ func New(opt...optionFunc)(*client,error) {
 	if err := res.validate();err!=nil{
 		return nil, err
 	}
-	if err := res.Upgrade() ;err !=nil {return nil, err}
+
+	if err := res.upgrade() ;err !=nil {return nil, err}
+	if err := res.start();err !=nil {return nil, err}
 	return res,nil
 }
 
-func (c *client)Upgrade()error{
+func (c *client)upgrade()error{
 	conn, err := (&websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -78,7 +103,7 @@ func (c *client)Upgrade()error{
 }
 
 
-func (c *client) Start(ctx context.Context) error{
+func (c *client) start() error{
 	go c.sendProc()
 	go c.recvProc()
 	return nil
@@ -86,6 +111,8 @@ func (c *client) Start(ctx context.Context) error{
 
 
 func (c *client) sendProc() {
+
+
 	defer func() {
 		if err :=recover();err !=nil {
 			log.Error(fmt.Sprintf("Client :	 '%v' current panic :'%v'",c.token,err))
@@ -109,6 +136,8 @@ func (c *client) sendProc() {
 			break
 		}
 	}
+
+	fmt.Println("------------------------ stop ")
 }
 
 
@@ -141,15 +170,11 @@ func (c *client) recvProc() {
 				log.Error(fmt.Sprintf("Cliet : '%v' read soketconn current error , reason : %v " , c.token, err ) )
 				break
 			}
-			// 将dis
-			c.handleRecv(data)
+			c.handleReceive(c, data)
 		}
 	}
 	c.close()
 }
-
-
-
 
 
 
@@ -166,6 +191,10 @@ func (c *client) validate ()error {
 	if c.reader == nil {
 		return ErrUpgradeBadConn
 	}
+	if c.handleReceive == nil {
+		return ErrhandReceiveIsNil
+	}
+
 	return nil
 }
 

@@ -10,7 +10,7 @@ type Bucketer interface {
 	Send(data []byte, token string ,Ack bool)error
 
 	// Send messages to all online users
-	SendAll(data []byte ,Ack bool)
+	BroadCast(data []byte ,Ack bool)
 
 	// Kick users offline
 	OffLine(token string)
@@ -20,4 +20,13 @@ type Bucketer interface {
 
 	//Judge whether the user is online
 	IsOnline(token string)bool
+
+
+	Onlines()int64
+
+
+	Flush()
+
+
+	NotifyBucketConnectionIsClosed()chan <- string
 }

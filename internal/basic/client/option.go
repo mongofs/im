@@ -5,42 +5,46 @@ import (
 	"net/http"
 )
 
-type Option interface {
-	apply(cli *client)
-}
+type OptionFunc func(cli *client)
 
-type optionFunc func(cli *client)
-
-
-func (o optionFunc)apply(cli *client){
-	o(cli)
-}
-
-
-
-func ClientWithWriter (writer http.ResponseWriter) optionFunc {
-	return func(client *client) {
-		client.writer = writer
+func WithWriter (writer http.ResponseWriter) OptionFunc {
+	return func(cli *client) {
+		cli.writer =writer
 	}
 }
 
 
-func ClientWithReader (r *http.Request) optionFunc {
-	return func(client *client) {
-		client.reader = r
+func WithReader (r *http.Request) OptionFunc {
+	return func(cli *client) {
+		cli.reader =r
 	}
 }
 
 
-func ClientWithContext (ctx context.Context) optionFunc {
-	return func(client *client) {
-		client.ctx = ctx
+func WithContext (ctx context.Context) OptionFunc {
+	return func(cli *client) {
+		cli.ctx =ctx
 	}
 }
 
 
-func ClientWithUserToken (token string) optionFunc {
+func WithUserToken (token string) OptionFunc {
 	return func(client *client) {
 		client.token = token
+	}
+}
+
+
+
+func WithReceiveFunc (f func(cli Clienter ,data []byte)) OptionFunc {
+	return func(client *client) {
+		client.handleReceive =f
+	}
+}
+
+
+func WithNotifyCloseChannel(ch  chan<- string)OptionFunc{
+	return func(cli *client) {
+		cli.closeSig = ch
 	}
 }

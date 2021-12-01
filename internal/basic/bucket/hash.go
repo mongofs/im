@@ -25,7 +25,7 @@ type hash struct {
 	users map[string]client.Clienter
 
 	// size
-	size int8
+	size int32
 
 	// User offline notification
 	closeSig chan string
@@ -43,7 +43,7 @@ type hash struct {
 const DefaultBufferSize = 100
 
 
-func New(opt ...optionFunc) Bucketer {
+func New(opt ...OptionFunc) Bucketer {
 
 	res := & hash{
 		rw:       sync.RWMutex{},
@@ -68,6 +68,18 @@ func New(opt ...optionFunc) Bucketer {
 
 func (h *hash)randId()int64{
 	return 0
+}
+
+
+func (h *hash) Onlines()int64 {
+	return h.np.Load()
+}
+
+
+func (h * hash)Flush(){
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	h.np.Store(int64(len(h.users)))
 }
 
 
@@ -96,7 +108,7 @@ func (h *hash) Send(data []byte, token string, Ack bool) error{
 
 
 
-func (h *hash) SendAll(data []byte, Ack bool) {
+func (h *hash) BroadCast(data []byte, Ack bool) {
 	h.rw.RLock()
 	defer h.rw.RUnlock()
 	for token,cli := range h.users{
@@ -142,3 +154,8 @@ func (h *hash) IsOnline(token string) bool {
 	return false
 }
 
+
+
+func (h *hash)NotifyBucketConnectionIsClosed()chan <- string{
+	return h.closeSig
+}
