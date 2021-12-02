@@ -8,8 +8,8 @@ import (
 	"time"
 )
 const  (
-	Address = "ws://10.0.4.109:8080/conn"
-	DefaultRpcAddress = "10.0.4.109:8081"
+	Address = "ws://127.0.0.1:8080/conn"
+	DefaultRpcAddress = "127.0.0.1:8081"
 )
 
 
@@ -63,16 +63,5 @@ func GetSliceOfStrings(len int)[]string{
 }
 
 
-
-func main(){
-	tokens := GetSliceOfStrings(10000)
-	for i:=0;i<10000;i++{
-		if i%100 ==0 {
-			time.Sleep(1*time.Second)
-		}
-		go CreateClient(tokens[i])
-	}
-	select {}
-}
 
 

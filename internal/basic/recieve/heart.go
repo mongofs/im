@@ -14,7 +14,5 @@ type Basic struct {
 
 
 func Handle (cli client.Clienter,data []byte){
-	/*b := &Basic{}
-	json.Unmarshal(data,b)*/
 	cli.Send(data)
 }

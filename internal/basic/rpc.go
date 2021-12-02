@@ -26,7 +26,7 @@ func (s *BasicServer) SendMessage(ctx context.Context, req *im.SendMessageReq) (
 
 func (s *BasicServer) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.BroadcastReply, error) {
 	for _,v :=range s.bs{
-		v.BroadCast(req.Data,false)
+		go v.BroadCast(req.Data,false)
 	}
 	return &im.BroadcastReply{},nil
 }

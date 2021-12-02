@@ -39,8 +39,21 @@ func BenchmarkSendMessageWithBufferSize8(t *testing.B) {
 
 
 
-// BenchmarkSendMessage-6   	   11626	     94524 ns/op
+//BenchmarkBroadCast-6   	    1932	    622000 ns/op 串行
 func BenchmarkBroadCast(t *testing.B) {
+	cli := Client()
+	ctx := context.Background()
+	data := &im.BroadcastReq{
+		Data:  []byte("testdata 1"),
+	}
+	for i:= 0;i<t.N ;i++ {
+		cli.Broadcast(ctx,data)
+	}
+}
+
+
+// BenchmarkBroadCast_paraml-6   	    2751	    391783 ns/op
+func BenchmarkBroadCast_paraml(t *testing.B) {
 	cli := Client()
 	ctx := context.Background()
 	data := &im.BroadcastReq{

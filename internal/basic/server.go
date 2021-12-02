@@ -2,6 +2,7 @@ package basic
 
 import (
 	"time"
+	"websocket/internal/basic/validate"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/atomic"
@@ -12,6 +13,7 @@ import (
 type BasicServer struct {
 	http *gin.Engine
 	rpc *grpc.Server
+	validate validate.Validater
 	rpcPort string
 	httpPort string
 	bs [] bucket.Bucketer

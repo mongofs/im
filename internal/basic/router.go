@@ -32,7 +32,6 @@ func (s *BasicServer) initRouter(middlewares ...gin.HandlerFunc)error{
 
 // create the connection
 func (s *BasicServer) Connection(ctx *gin.Context)error{
-
 	token:= ctx.Query("token")
 	if token == "" {
 		return ErrTokenIsNil
@@ -47,17 +46,19 @@ func (s *BasicServer) Connection(ctx *gin.Context)error{
 		client.WithUserToken(token),
 		client.WithNotifyCloseChannel(ch),
 		client.WithReceiveFunc(recieve.Handle))
-
 	if err !=nil {
 		return err
 
 	}
-	// ! validate
-	if token =="error" {
-		cli.Send([]byte("not ok "))
+
+	if 1==2{
+		cli.Send([]byte("token 验证失败"))
 		cli.Offline()
 		return err
 	}
 
 	return bs.Register(cli,token)
 }
+
+
+

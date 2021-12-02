@@ -11,7 +11,7 @@ import (
 
 const (
 	DefaultBucketSize 	= 1<< 10  //1024
-	DefaultBucketNumber = 1<< 7 //128
+	DefaultBucketNumber = 1<< 6 //64
 
 	DefaultGrpcPort =":8081"
 	DefaultHttpPort =":8080"
@@ -25,6 +25,10 @@ func New(opts...  Option)*BasicServer{
 		rpcPort: DefaultGrpcPort,
 		httpPort: DefaultHttpPort,
 	}
+
+
+	//todo
+	//panic("validate")
 	b.ps.Store(0)
 	for _,o := range opts{
 		o(b)
