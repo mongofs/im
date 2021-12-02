@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
-
+	"math/rand"
+	"time"
 )
-
 const  (
-	Address = "ws://127.0.0.1:8080/conn"
+	Address = "ws://10.0.4.109:8080/conn"
+	DefaultRpcAddress = "10.0.4.109:8081"
 )
+
 
 func CreateClient (token string){
 	dialer := websocket.Dialer{}
@@ -37,6 +39,40 @@ func CreateClient (token string){
 
 		}
 	}
+}
+
+var r = rand.New(rand.NewSource(time.Now().Unix()))
+
+func RandString(len int) string {
+	bytes := make([]byte, len)
+	for i := 0; i < len; i++ {
+		b := r.Intn(26) + 65
+		bytes[i] = byte(b)
+	}
+	return string(bytes)
+}
+
+
+
+func GetSliceOfStrings(len int)[]string{
+	strs := make([]string,len)
+	for i:=0;i<len ; i++{
+		strs[i]=RandString(20)
+	}
+	return strs
+}
+
+
+
+func main(){
+	tokens := GetSliceOfStrings(10000)
+	for i:=0;i<10000;i++{
+		if i%100 ==0 {
+			time.Sleep(1*time.Second)
+		}
+		go CreateClient(tokens[i])
+	}
+	select {}
 }
 
 

@@ -10,7 +10,9 @@ import (
 )
 
 
-var conn,_ = grpc.Dial("127.0.0.1:8081",grpc.WithInsecure())
+
+
+var conn,_ = grpc.Dial(DefaultRpcAddress,grpc.WithInsecure())
 
 
 func Client ()im.BasicClient{

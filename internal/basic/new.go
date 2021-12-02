@@ -12,6 +12,9 @@ import (
 const (
 	DefaultBucketSize 	= 1<< 10  //1024
 	DefaultBucketNumber = 1<< 7 //128
+
+	DefaultGrpcPort =":8081"
+	DefaultHttpPort =":8080"
 )
 
 
@@ -19,6 +22,8 @@ func New(opts...  Option)*BasicServer{
 	b:= &BasicServer{
 		ps:    atomic.Int64{},
 		bsIdx: DefaultBucketNumber,
+		rpcPort: DefaultGrpcPort,
+		httpPort: DefaultHttpPort,
 	}
 	b.ps.Store(0)
 	for _,o := range opts{
@@ -48,7 +53,7 @@ func (b *BasicServer)prepareBucketer(){
 
 func (b * BasicServer)prepareGrpcServer (){
 	if b.rpcPort == ""{
-		b.rpcPort ="127.0.0.1:8081"
+		b.rpcPort =DefaultGrpcPort
 	}
 
 	b.rpc = grpc.NewServer()
