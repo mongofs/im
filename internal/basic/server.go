@@ -23,7 +23,7 @@ type BasicServer struct {
 
 
 
-func (s *BasicServer)monitor (){
+func (s *BasicServer)monitor ()error{
 	for{
 		n := int64(0)
 		for _,bck := range  s.bs{
@@ -33,6 +33,7 @@ func (s *BasicServer)monitor (){
 		s.ps.Store(n)
 		time.Sleep(10 *time.Second)
 	}
+	return nil
 }
 
 

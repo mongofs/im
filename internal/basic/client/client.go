@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var (
@@ -49,9 +50,10 @@ func (c *client) Send(data []byte, i ...int64)error {
 		sid = i[0]
 	}
 
+	// todo 优化
 	basic := Basic{
 		Sid: sid,
-		Msg: data,
+		Msg: string(data),
 	}
 	d,err := json.Marshal(basic)
 	if err!=nil{
@@ -76,7 +78,9 @@ func (c *client) Offline() {
 
 func New(opt...OptionFunc)(Clienter,error) {
 	res := &client{
-		buffer: make(chan []byte,1),
+		buffer: make(chan []byte,10),
+		done: make(chan struct{}),
+		closeFunc: sync.Once{},
 	}
 	for _,o := range opt {
 		o(res)
@@ -126,26 +130,31 @@ func (c *client) sendProc() {
 				if err==websocket.ErrCloseSent{
 					log.Info(fmt.Sprintf("Cliet : '%v' soket conn is break , reason : %v " , c.token, err ) )
 					c.close()
+					goto loop
 				}else {
 					log.Info(fmt.Sprintf("Cliet : '%v' soket conn is break , reason : %v " , c.token, err ) )
 					continue
 				}
 			}
 		case <-c.done:
-			log.Info(fmt.Sprintf("Cliet : '%v' sender goroutine is close " , c.token) )
-			break
+			goto loop
 		}
 	}
-
-	fmt.Println("------------------------ stop ")
+	loop :
+		log.Info(fmt.Sprintf("Cliet : '%v' sender goroutine is close " , c.token) )
 }
 
+
+const (
+	waitTime = 1 <<7
+)
 
 func (c *client) close() {
 	c.closeFunc.Do(func() {
 		close(c.done)
-		c.closeSig<-c.token
+		time.Sleep(waitTime * time.Millisecond)
 		c.conn.Close()
+		c.closeSig<-c.token
 	})
 }
 
@@ -162,17 +171,18 @@ func (c *client) recvProc() {
 	for {
 		select {
 		case <-c.done:
-			log.Info(fmt.Sprintf("Client : '%v' reciver quite safely" , c.token) )
-			break
+			goto loop
 		default:
 			_, data, err := c.conn.ReadMessage()
-			if err != nil {
+			if err !=nil {
 				log.Error(fmt.Sprintf("Cliet : '%v' read soketconn current error , reason : %v " , c.token, err ) )
-				break
+				goto loop
 			}
 			c.handleReceive(c, data)
 		}
 	}
+	loop:
+		log.Info(fmt.Sprintf("Client : '%v' reciver quite safely" , c.token) )
 	c.close()
 }
 

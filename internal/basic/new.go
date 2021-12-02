@@ -15,15 +15,19 @@ const (
 )
 
 
-func New()*BasicServer{
+func New(opts...  Option)*BasicServer{
 	b:= &BasicServer{
-		ps : atomic.Int64{},
+		ps:    atomic.Int64{},
 		bsIdx: DefaultBucketNumber,
+	}
+	b.ps.Store(0)
+	for _,o := range opts{
+		o(b)
 	}
 	b.prepareBucketer()
 	b.prepareGrpcServer()
 	b.prepareHttpServer()
-	go b.monitor()
+
 	return b
 }
 

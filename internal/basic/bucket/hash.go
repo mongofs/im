@@ -101,9 +101,12 @@ func (h *hash) send (cli client.Clienter,token string,data []byte,ack bool)error
 
 func (h *hash) Send(data []byte, token string, Ack bool) error{
 	h.rw.RLock()
-	cli := h.users[token]
-	h.rw.RUnlock()
-	return h.send(cli,token,data,Ack)
+	defer h.rw.RUnlock()
+	if cli ,ok:= h.users[token];!ok{
+		return ErrCliISNil
+	}else {
+		return h.send(cli,token,data,Ack)
+	}
 }
 
 

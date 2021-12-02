@@ -12,6 +12,7 @@ func (s * BasicServer)Run ()error {
 	wg := errgroup.Group{}
 	wg.Go(s.runhttpServer)
 	wg.Go(s.runGrpcServer)
+	wg.Go(s.monitor)
 	return wg.Wait()
 }
 
