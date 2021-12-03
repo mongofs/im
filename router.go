@@ -51,7 +51,7 @@ func (s *ImSrever) Connection(ctx *gin.Context)error{
 	}
 
 	if err := s.validate.Validate(token);err !=nil {
-		cli.Send([]byte("token 验证失败"))
+		cli.Send([]byte("token validate not ok "))
 		cli.Offline()
 		return err
 	}
