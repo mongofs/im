@@ -1,8 +1,8 @@
 package im
 
 import (
-	"websocket/recieve"
-	"websocket/validate"
+	"github.com/mongofs/im/recieve"
+	 "github.com/mongofs/im/validate"
 )
 
 type Option func (b *ImSrever)

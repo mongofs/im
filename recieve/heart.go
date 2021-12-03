@@ -1,7 +1,7 @@
 package recieve
 
 import (
-	"websocket/client"
+	"github.com/mongofs/im/client"
 )
 
 

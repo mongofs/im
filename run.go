@@ -22,7 +22,7 @@ func (s *ImSrever)runGrpcServer ()error{
 	if err !=nil {
 		log.Fatal(err)
 	}
-	log.Println("start grpc server at %s", s.rpcPort)
+	log.Println("start grpc server at ", s.rpcPort)
 	if err := s.rpc.Serve(listen);err !=nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (s *ImSrever)runhttpServer ()error{
 		s.httpPort ="127.0.0.1:8080"
 	}
 
-	log.Println("start http server at %s", s.httpPort)
+	log.Println("start http server at ", s.httpPort)
 	if err := s.http.Run(s.httpPort);err !=nil {
 		return err
 	}

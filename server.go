@@ -2,12 +2,12 @@ package im
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mongofs/im/bucket"
+	"github.com/mongofs/im/recieve"
+	"github.com/mongofs/im/validate"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
 	"time"
-	"websocket/bucket"
-	"websocket/recieve"
-	"websocket/validate"
 )
 
 type ImSrever struct {

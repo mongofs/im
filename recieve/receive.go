@@ -1,6 +1,6 @@
 package recieve
 
-import "websocket/client"
+import "github.com/mongofs/im/client"
 
 type Receiver interface {
 

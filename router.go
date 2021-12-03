@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"websocket/client"
+	"github.com/mongofs/im/client"
 )
 
 

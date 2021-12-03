@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	grpc2 "github.com/mongofs/api/im/v1"
+	"github.com/mongofs/im/bucket"
+	"github.com/mongofs/im/recieve"
+	"github.com/mongofs/im/validate"
+	"github.com/mongofs/im/validate/example"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
-	"websocket/bucket"
-	"websocket/recieve"
-	"websocket/validate"
-	"websocket/validate/example"
 )
 
 const (

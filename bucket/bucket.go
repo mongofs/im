@@ -1,7 +1,7 @@
 package bucket
 
 import (
-	"websocket/client"
+	"github.com/mongofs/im/client"
 )
 
 type Bucketer interface {
