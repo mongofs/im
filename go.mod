@@ -1,4 +1,4 @@
-module im
+module github.com/mongofs/im
 
 go 1.14
 
