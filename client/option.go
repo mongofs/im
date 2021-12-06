@@ -48,3 +48,10 @@ func WithNotifyCloseChannel(ch  chan<- string) OptionFunc {
 		cli.closeSig = ch
 	}
 }
+
+
+func WithAgreement (agreement int )OptionFunc{
+	return func(cli *client) {
+		cli.agreement =agreement
+	}
+}

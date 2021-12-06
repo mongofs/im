@@ -1,11 +1,17 @@
 package im
 
 import (
-	"golang.org/x/sync/errgroup"
-	"log"
+	"fmt"
 	"net"
+	"net/http"
+	"path"
+	"runtime"
+
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
+var VERSION = "master"
 
 
 func (s *ImSrever)Run ()error {
@@ -19,25 +25,22 @@ func (s *ImSrever)Run ()error {
 
 func (s *ImSrever)runGrpcServer ()error{
 	listen, err := net.Listen("tcp", s.rpcPort)
-	if err !=nil {
+	if err !=nil { log.Fatal(err) }
+	log.Info("start GRPC server at ", s.rpcPort)
+	if err := s.rpc.Serve(listen);err !=nil {
 		log.Fatal(err)
 	}
-	log.Println("start grpc server at ", s.rpcPort)
-	if err := s.rpc.Serve(listen);err !=nil {
-		return err
-	}
+
 	return nil
 }
 
 
 func (s *ImSrever)runhttpServer ()error{
-	if s.httpPort ==""{
-		s.httpPort ="127.0.0.1:8080"
-	}
-
-	log.Println("start http server at ", s.httpPort)
-	if err := s.http.Run(s.httpPort);err !=nil {
-		return err
+	listen, err := net.Listen("tcp", s.httpPort)
+	if err !=nil { log.Fatal(err) }
+	log.Info("start HTTP server at ", s.httpPort)
+	if err := http.Serve(listen,s.http);err !=nil {
+		log.Fatal(err)
 	}
 	return nil
 }
@@ -47,4 +50,15 @@ func (s *ImSrever)Close()error{
 	s.rpc.GracefulStop()
 	s.cancel()
 	return nil
+}
+
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			filename := path.Base(f.File)
+			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
+		},
+	})
 }

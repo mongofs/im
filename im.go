@@ -2,19 +2,20 @@ package im
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	grpc2 "github.com/mongofs/api/im/v1"
 	"github.com/mongofs/im/bucket"
+	"github.com/mongofs/im/client"
 	"github.com/mongofs/im/recieve"
 	"github.com/mongofs/im/validate"
 	"github.com/mongofs/im/validate/example"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
+	"net/http"
 )
 
 const (
 	DefaultBucketSize 	= 1<< 10  //1024
-	DefaultBucketNumber = 1<< 6 //64
+	DefaultBucketNumber = 1<< 5 //32
 
 	DefaultGrpcPort =":8081"
 	DefaultHttpPort =":8080"
@@ -24,6 +25,7 @@ const (
 var (
 	DefaultValidate  validate.Validater = &example.DefaultValidate{}
 	DefaultReciever  recieve.Receiver = &recieve.Example{}
+	DefaultAgreement int = client.AgreementJson
  )
 
 
@@ -35,6 +37,7 @@ func New(opts...Option)*ImSrever {
 		httpPort: DefaultHttpPort,
 		recevier: DefaultReciever,
 		validate: DefaultValidate,
+		agreement: DefaultAgreement,
 	}
 	b.ps.Store(0)
 	for _,o := range opts{
@@ -68,6 +71,9 @@ func (b *ImSrever)prepareGrpcServer (){
 
 
 func (b *ImSrever)prepareHttpServer(){
-	b.http = gin.Default()
+	b.http = http.NewServeMux()
 	b.initRouter()
 }
+
+
+

@@ -1,23 +1,23 @@
 package im
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/mongofs/im/bucket"
 	"github.com/mongofs/im/recieve"
 	"github.com/mongofs/im/validate"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
+	"net/http"
 	"time"
 )
 
 type ImSrever struct {
-	http     *gin.Engine
+	http     *http.ServeMux
 	rpc      *grpc.Server
 	rpcPort  string
 	httpPort string
-
 	validate validate.Validater
 	recevier recieve.Receiver
+	agreement int
 	bs       []bucket.Bucketer
 	ps       atomic.Int64
 	bsIdx    uint32
@@ -45,6 +45,7 @@ func (s *ImSrever) bucket(token string) bucket.Bucketer {
 	idx := Index(token,s.bsIdx)
 	return s.bs[idx]
 }
+
 
 
 

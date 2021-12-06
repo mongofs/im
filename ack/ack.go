@@ -11,15 +11,10 @@ var (
 )
 
 type ack struct {
-
 	rw sync.RWMutex
-
 	data map[int64] *unit
-
 	retry int8
-
 	retryTime int64
-
 }
 
 const (

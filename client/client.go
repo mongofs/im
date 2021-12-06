@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
 	"time"
+
+	im "github.com/mongofs/api/im/v1"
+	"github.com/golang/protobuf/proto"
+	"github.com/gorilla/websocket"
 )
 
 var (
@@ -20,42 +23,41 @@ var (
 )
 
 
+
 type client struct {
-	// writer
 	writer http.ResponseWriter
-	// reader
 	reader *http.Request
-	// 用户连接地址
 	conn *websocket.Conn
-	// user token should be validate
 	token string
-	// close flag
 	closeFunc  sync.Once
-	// 通知用户的goroutine 退出
 	done       chan struct{}
-	// 控制读写goroutine 退出的ctx
 	ctx context.Context
-	// 用户信息缓冲区
-	buffer chan []byte // length should be 1
-	// close sig
+	buffer chan []byte
 	closeSig 	chan<- string
-	// handle
 	handleReceive func(cli Clienter,data []byte)
+	agreement int
 }
 
 func (c *client) Send(data []byte, i ...int64)error {
-	var sid int64
-	// 这里组装data
+	var (
+		sid int64
+		d []byte
+		err error
+	)
+
 	if len(i) >0 {
 		sid = i[0]
 	}
 
-	// todo 优化
-	basic := Basic{
+	basic := &im.PushToClient{
 		Sid: sid,
-		Msg: string(data),
+		Msg: data,
 	}
-	d,err := json.Marshal(basic)
+	if c.agreement == AgreementJson {
+		d,err = json.Marshal(basic)
+	}else {
+		d,err = proto.Marshal(basic)
+	}
 	if err!=nil{
 		return err
 	}
@@ -81,15 +83,14 @@ func New(opt...OptionFunc)(Clienter,error) {
 		buffer: make(chan []byte,10),
 		done: make(chan struct{}),
 		closeFunc: sync.Once{},
+		agreement: AgreementJson,
 	}
 	for _,o := range opt {
 		o(res)
 	}
-
 	if err := res.validate();err!=nil{
 		return nil, err
 	}
-
 	if err := res.upgrade() ;err !=nil {return nil, err}
 	if err := res.start();err !=nil {return nil, err}
 	return res,nil
@@ -115,8 +116,6 @@ func (c *client) start() error{
 
 
 func (c *client) sendProc() {
-
-
 	defer func() {
 		if err :=recover();err !=nil {
 			log.Error(fmt.Sprintf("Client :	 '%v' current panic :'%v'",c.token,err))

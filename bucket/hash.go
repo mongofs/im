@@ -44,13 +44,11 @@ const DefaultBufferSize = 100
 
 
 func New(opt ...OptionFunc) Bucketer {
-
 	res := & hash{
 		rw:       sync.RWMutex{},
 		np:       &atomic.Int64{},
 		closeSig: make(chan string,1),
 	}
-
 	if len(opt)>0 {
 		for _,o := range opt{
 			o(res)
@@ -60,7 +58,6 @@ func New(opt ...OptionFunc) Bucketer {
 		res.size = DefaultBufferSize
 	}
 	res.users = make(map[string]client.Clienter,res.size)
-
 	res.start()
 	return res
 }
@@ -112,11 +109,13 @@ func (h *hash) Send(data []byte, token string, Ack bool) error{
 
 
 func (h *hash) BroadCast(data []byte, Ack bool) {
-	h.rw.RLock()
-	defer h.rw.RUnlock()
-	for token,cli := range h.users{
-		h.send(cli,token,data,Ack)
-	}
+	go func() {
+		h.rw.RLock()
+		defer h.rw.RUnlock()
+		for token,cli := range h.users{
+			h.send(cli,token,data,Ack)
+		}
+	}()
 }
 
 
@@ -137,8 +136,8 @@ func (h *hash) Register(cli client.Clienter,token string) error {
 	}
 	h.rw.Lock()
 	defer h.rw.Unlock()
-	if _,ok := h.users[token]; ok {
-		return ErrUserExist
+	if old,ok := h.users[token]; ok {
+		old.Offline()
 	}
 	h.users[token] = cli
 	h.np.Add(1)

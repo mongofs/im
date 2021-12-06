@@ -36,3 +36,10 @@ func WithClientReceiver  (receiver recieve.Receiver) Option {
 		b.recevier = receiver
 	}
 }
+
+
+func WithClientAgreement  (agreement int) Option {
+	return func(b *ImSrever) {
+		b.agreement =agreement
+	}
+}
