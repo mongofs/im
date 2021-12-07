@@ -55,3 +55,17 @@ func WithAgreement (agreement int )OptionFunc{
 		cli.agreement =agreement
 	}
 }
+
+
+func WithTransferMethod (transferMethod int)OptionFunc{
+	return func(cli *client) {
+		cli.transferMethod = uint(transferMethod)
+	}
+}
+
+
+func WithClientBuffer  (ClientBuffer int)OptionFunc{
+	return func(cli *client) {
+		cli.bufSize = uint(ClientBuffer)
+	}
+}
