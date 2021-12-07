@@ -18,6 +18,7 @@ type ImSrever struct {
 	validate validate.Validater
 	recevier recieve.Receiver
 	agreement int
+	MessageSendMethod int
 	bs       []bucket.Bucketer
 	ps       atomic.Int64
 	bsIdx    uint32

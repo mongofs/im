@@ -43,3 +43,9 @@ func WithClientAgreement  (agreement int) Option {
 		b.agreement =agreement
 	}
 }
+
+func WithClientMessageSendMethod  (messageSendMethod int) Option {
+	return func(b *ImSrever) {
+		b.MessageSendMethod =messageSendMethod
+	}
+}

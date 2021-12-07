@@ -63,7 +63,8 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 		client.WithUserToken(token),
 		client.WithNotifyCloseChannel(ch),
 		client.WithReceiveFunc(s.recevier.Handle),
-		client.WithAgreement(s.agreement))
+		client.WithAgreement(s.agreement),
+		client.WithTransferMethod(int(client.TransferByte)))
 	if err !=nil {
 		res.Status=400
 		res.Data = err.Error()
