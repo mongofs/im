@@ -1,32 +1,146 @@
 package bucket
 
 import (
+	"errors"
+	"github.com/mongofs/im/ack"
 	"github.com/mongofs/im/client"
+	"go.uber.org/atomic"
+	"net/http"
+	"sync"
 )
 
-type Bucketer interface {
-	// send data to someone
-	// ACK indicates whether the message is a receipt message
-	Send(data []byte, token string ,Ack bool)error
 
-	// Send messages to all online users
-	BroadCast(data []byte ,Ack bool)
+var (
+	ErrUserExist =errors.New("hash : Cannot login repeatedly")
+	ErrCliISNil  =errors.New("hash : cli is nil")
+)
 
-	// Kick users offline
-	OffLine(token string)
+type bucket struct {
+	rw sync.RWMutex
 
-	// Register user to basket
-	Register(cli client.Clienter,token string)error
+	// Number of people
+	np *atomic.Int64
 
-	//Judge whether the user is online
-	IsOnline(token string)bool
+	// users set
+	clis map[string]client.Clienter
 
+	// User offline notification
+	closeSig chan string
 
-	Onlines()int64
-
-
-	Flush()
+	// Ack map
+	ack ack.Acker
 
 
-	NotifyBucketConnectionIsClosed()chan <- string
+	opts * Option
 }
+
+func New(option *Option) Bucketer {
+	res := & bucket{
+		rw:       sync.RWMutex{},
+		np:       &atomic.Int64{},
+		closeSig: make(chan string,1),
+		opts: option,
+	}
+	res.clis = make(map[string]client.Clienter,res.opts.BucketSize)
+	res.start()
+	return res
+}
+
+
+func (h *bucket)Flush(){
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	h.np.Store(int64(len(h.clis)))
+}
+
+
+func(h *bucket)CreateConn(w http.ResponseWriter,r * http.Request,token string)(client.Clienter,error){
+	return  client.CreateConn(w , r ,
+				h.closeSig,
+				h.opts.BucketSize,
+				h.opts.MessageType,
+				h.opts.Protocol,
+				h.opts.ReaderBufferSize,
+				h.opts.WriteBufferSize,
+				token ,
+				h.opts.ctx)
+}
+
+func (h *bucket)randId()int64{
+	return 0
+}
+
+func (h *bucket) Onlines()int64 {
+	return h.np.Load()
+}
+
+
+
+func (h *bucket) send (cli client.Clienter,token string,data []byte,ack bool)error{
+	if ack {
+		sid := h.randId()
+		if err := h.ack.AddMessage(token,sid,data);err !=nil{
+			return err
+		}
+		cli.Send(data,sid)
+	}else{
+		cli.Send(data)
+	}
+	return nil
+}
+
+func (h *bucket) Send(data []byte, token string, Ack bool) error{
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	if cli ,ok:= h.clis[token];!ok{
+		return ErrCliISNil
+	}else {
+		return h.send(cli,token,data,Ack)
+	}
+}
+
+func (h *bucket) BroadCast(data []byte, Ack bool) {
+	go func() {
+		h.rw.RLock()
+		defer h.rw.RUnlock()
+		for token,cli := range h.clis{
+			h.send(cli,token,data,Ack)
+		}
+	}()
+}
+
+func (h *bucket) OffLine(token string) {
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	cli := h.clis[token]
+	cli.Offline()
+}
+
+func (h *bucket) Register(cli client.Clienter,token string) error {
+	if cli == nil  {
+		return ErrCliISNil
+	}
+	h.rw.Lock()
+	defer h.rw.Unlock()
+	if old,ok := h.clis[token]; ok {
+		old.Offline()
+	}
+	h.clis[token] = cli
+	h.np.Add(1)
+	return nil
+}
+
+func (h *bucket) IsOnline(token string) bool {
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	if _,ok:= h.clis[token];ok {
+		return true
+	}
+	return false
+}
+
+
+func (h *bucket)NotifyBucketConnectionIsClosed()chan <- string{
+	return h.closeSig
+}
+

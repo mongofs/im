@@ -1,9 +1,7 @@
 package im
 
 import (
-	"context"
 	"errors"
-	"github.com/mongofs/im/client"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
@@ -55,22 +53,13 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 	}
 	// validate token
 	bs:= s.bucket(token)
-	ch := bs.NotifyBucketConnectionIsClosed()
-	cli ,err := client.New(
-		client.WithContext(context.Background()),
-		client.WithReader(request),
-		client.WithWriter(writer),
-		client.WithUserToken(token),
-		client.WithNotifyCloseChannel(ch),
-		client.WithReceiveFunc(s.recevier.Handle),
-		client.WithAgreement(s.agreement),
-		client.WithTransferMethod(int(client.TransferByte)))
+	cli,err := bs.CreateConn(writer,request,token)
 	if err !=nil {
 		res.Status=400
 		res.Data = err.Error()
 		return
 	}
-	if err := s.validate.Validate(token);err !=nil {
+	if err := s.opt.ServerValidate.Validate(token);err !=nil {
 		cli.Send([]byte("User token validate failed "))
 		cli.Offline()
 		return

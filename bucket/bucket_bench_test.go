@@ -39,7 +39,7 @@ func (c *cli) Offline() {
 
 
 func getUserMap(nums int)(Bucketer){
-	bucket := New()
+	bucket := New(DefaultOption())
 	for i:=0 ;i< nums;i++ {
 		user := newCil()
 		bucket.Register(user,user.token)

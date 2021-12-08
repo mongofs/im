@@ -3,70 +3,56 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
-	im "github.com/mongofs/api/im/v1"
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	im "github.com/mongofs/api/im/v1"
 )
 
-var (
-	ErrUpgradeBadConn    = errors.New("client: conn reader/writer is bad ")
-	ErrhandReceiveIsNil  = errors.New("client: handler receive is nil ")
-	ErrConnCreatedError  = errors.New("client: create connection is failed ")
-	ErrNoSupplyUserToken = errors.New("client: create connection is failed ")
-	ErrContextNotSupply  = errors.New("client: context is not supply ")
-)
 
 const (
-	waitTime          = 1 << 7
-	AgreementJson     = 1
-	AgreementProtobuf = 2
+	waitTime         = 1 << 7
+	ProtocolJson     = 1
+	ProtocolProtobuf = 2
 
-	TransferText uint = 1
-	TransferByte uint = 2
+	MessageTypeText    = 1
+	MessageTypeBinary  = 2
 
-	DefaultClientBuffer = 10
-	DefaultReaderBuffer = 1024
-	DefaultWriteBuffer  = 1024
 )
 
 type client struct {
-	writer         http.ResponseWriter
-	reader         *http.Request
-	conn           *websocket.Conn
-	token          string
-	closeFunc      sync.Once
-	done           chan struct{}
-	ctx            context.Context
-	buf            chan []byte
-	bufSize        uint
-	closeSig       chan<- string
-	handleReceive  func(cli Clienter, data []byte)
-	agreement      int
-	transferMethod uint
+	lastHeartBeatT	int64
+	conn          *websocket.Conn
+	token         string
+	closeFunc     sync.Once
+	done          chan struct{}
+	ctx           context.Context
+	buf           chan []byte
+	closeSig      chan<- string
+	handleReceive func(cli Clienter, data []byte)
+
+	protocol    int // json /protobuf
+	messageType int // text /binary
 }
 
-func New(opt ...OptionFunc) (Clienter, error) {
+func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
+						readBuffSize, writeBuffSize int, token string, ctx context.Context) (Clienter, error) {
 	res := &client{
-		done:           make(chan struct{}),
-		closeFunc:      sync.Once{},
-		agreement:      AgreementJson,
-		bufSize:        DefaultClientBuffer,
-		transferMethod: TransferText,
+		lastHeartBeatT: time.Now().Unix(),
+		done:        make(chan struct{}),
+		closeFunc:   sync.Once{},
+		buf:         make(chan []byte, buffer),
+		token:       token,
+		ctx:         ctx,
+		closeSig: closeSig,
+		protocol:    protocol,
+		messageType: messageType,
 	}
-	for _, o := range opt {
-		o(res)
-	}
-	res.buf = make(chan []byte, res.bufSize)
-	if err := res.validate(); err != nil {
-		return nil, err
-	}
-	if err := res.upgrade(); err != nil {
+	if err := res.upgrade(w, r, readBuffSize, writeBuffSize); err != nil {
 		return nil, err
 	}
 	if err := res.start(); err != nil {
@@ -75,14 +61,14 @@ func New(opt ...OptionFunc) (Clienter, error) {
 	return res, nil
 }
 
-func (c *client) upgrade() error {
+func (c *client) upgrade(w http.ResponseWriter, r *http.Request, readerSize, writeSize int) error {
 	conn, err := (&websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
-		ReadBufferSize:  DefaultReaderBuffer,
-		WriteBufferSize: DefaultWriteBuffer,
-	}).Upgrade(c.writer, c.reader, nil)
+		ReadBufferSize:  readerSize,
+		WriteBufferSize: writeSize,
+	}).Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
@@ -103,7 +89,7 @@ func (c *client) Send(data []byte, i ...int64) error {
 		Sid: sid,
 		Msg: data,
 	}
-	if c.agreement == AgreementJson {
+	if c.protocol == ProtocolJson {
 		d, err = json.Marshal(basic)
 	} else {
 		d, err = proto.Marshal(basic)
@@ -113,6 +99,10 @@ func (c *client) Send(data []byte, i ...int64) error {
 	}
 	c.send(d)
 	return nil
+}
+
+func (c *client) LastHeartBeat() int64 {
+	return c.lastHeartBeatT
 }
 
 func (c *client) send(data []byte) {
@@ -138,7 +128,7 @@ func (c *client) sendProc() {
 	for {
 		select {
 		case data := <-c.buf:
-			err := c.conn.WriteMessage(int(c.transferMethod), data)
+			err := c.conn.WriteMessage(c.messageType, data)
 			if err != nil {
 				goto loop
 			}
@@ -181,21 +171,9 @@ loop:
 	c.close()
 }
 
-func (c *client) validate() error {
-	if c.token == "" {
-		return ErrNoSupplyUserToken
-	}
-	if c.ctx == nil {
-		return ErrContextNotSupply
-	}
-	if c.writer == nil {
-		return ErrUpgradeBadConn
-	}
-	if c.reader == nil {
-		return ErrUpgradeBadConn
-	}
-	if c.handleReceive == nil {
-		return ErrhandReceiveIsNil
-	}
-	return nil
+
+func (c *client) UpLastHeartBeat(){
+	c.lastHeartBeatT =time.Now().Unix()
 }
+
+

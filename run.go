@@ -24,9 +24,9 @@ func (s *ImSrever)Run ()error {
 
 
 func (s *ImSrever)runGrpcServer ()error{
-	listen, err := net.Listen("tcp", s.rpcPort)
+	listen, err := net.Listen("tcp", s.opt.ServerRpcPort)
 	if err !=nil { log.Fatal(err) }
-	log.Info("start GRPC server at ", s.rpcPort)
+	log.Info("start GRPC server at ", s.opt.ServerRpcPort)
 	if err := s.rpc.Serve(listen);err !=nil {
 		log.Fatal(err)
 	}
@@ -36,9 +36,9 @@ func (s *ImSrever)runGrpcServer ()error{
 
 
 func (s *ImSrever)runhttpServer ()error{
-	listen, err := net.Listen("tcp", s.httpPort)
+	listen, err := net.Listen("tcp", s.opt.ServerHttpPort)
 	if err !=nil { log.Fatal(err) }
-	log.Info("start HTTP server at ", s.httpPort)
+	log.Info("start HTTP server at ", s.opt.ServerHttpPort)
 	if err := http.Serve(listen,s.http);err !=nil {
 		log.Fatal(err)
 	}

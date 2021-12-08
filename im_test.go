@@ -6,7 +6,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	bs := New()
+	bs := New(DefaultOption())
 	err := bs.Run()
 	if err !=nil {
 		log.Fatal(err)
@@ -15,7 +15,7 @@ func TestNew(t *testing.T) {
 }
 
 func ExampleNew() {
-	bs := New()
+	bs := New(DefaultOption())
 	err := bs.Run()
 	if err !=nil {
 		log.Fatal(err)

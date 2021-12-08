@@ -2,8 +2,6 @@ package im
 
 import (
 	"github.com/mongofs/im/bucket"
-	"github.com/mongofs/im/recieve"
-	"github.com/mongofs/im/validate"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
 	"net/http"
@@ -13,16 +11,11 @@ import (
 type ImSrever struct {
 	http     *http.ServeMux
 	rpc      *grpc.Server
-	rpcPort  string
-	httpPort string
-	validate validate.Validater
-	recevier recieve.Receiver
-	agreement int
-	MessageSendMethod int
 	bs       []bucket.Bucketer
 	ps       atomic.Int64
-	bsIdx    uint32
 	cancel   func()
+
+	opt *Option
 }
 
 
@@ -43,7 +36,7 @@ func (s *ImSrever)monitor ()error{
 
 
 func (s *ImSrever) bucket(token string) bucket.Bucketer {
-	idx := Index(token,s.bsIdx)
+	idx := Index(token,uint32(s.opt.ServerBucketNumber))
 	return s.bs[idx]
 }
 

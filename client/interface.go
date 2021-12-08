@@ -6,6 +6,8 @@ type Clienter  interface {
 	Send([]byte,...int64)error
 	// 调用此方法可以下线用户
 	Offline()
+	//
+	LastHeartBeat()int64
 }
 
 
