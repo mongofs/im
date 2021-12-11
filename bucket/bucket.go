@@ -54,7 +54,7 @@ func (h *bucket)Flush(){
 }
 
 
-func(h *bucket)CreateConn(w http.ResponseWriter,r * http.Request,token string)(client.Clienter,error){
+func(h *bucket)CreateConn(w http.ResponseWriter,r * http.Request,token string,handler client.Receiver)(client.Clienter,error){
 	return  client.CreateConn(w , r ,
 				h.closeSig,
 				h.opts.BucketSize,
@@ -63,7 +63,8 @@ func(h *bucket)CreateConn(w http.ResponseWriter,r * http.Request,token string)(c
 				h.opts.ReaderBufferSize,
 				h.opts.WriteBufferSize,
 				token ,
-				h.opts.ctx)
+				h.opts.ctx,
+				handler)
 }
 
 func (h *bucket)randId()int64{

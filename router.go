@@ -53,7 +53,7 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 	}
 	// validate token
 	bs:= s.bucket(token)
-	cli,err := bs.CreateConn(writer,request,token)
+	cli,err := bs.CreateConn(writer,request,token,s.opt.ServerReceive)
 	if err !=nil {
 		res.Status=400
 		res.Data = err.Error()

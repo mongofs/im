@@ -7,7 +7,7 @@ const (
 	DefaultReaderBufferSize  = 10
 	DefaultWriteBufferSize   = 10
 	DefaultClientBufferSize  = 10
-	DefaultMessageType         = 10
+	DefaultMessageType       = 10
 	DefaultProtocol          = 10
 	DefaultBucketSize        = 100
 )
@@ -17,11 +17,11 @@ type Option struct {
 	ReaderBufferSize  int
 	WriteBufferSize   int
 	ClientBufferSize  int
-	MessageType        int
+	MessageType       int
 	Protocol          int
 	BucketSize        int
 
-	ctx context.Context
+	ctx      context.Context
 	callback func()
 }
 
@@ -31,7 +31,7 @@ func DefaultOption() *Option {
 		ReaderBufferSize:  DefaultReaderBufferSize,
 		WriteBufferSize:   DefaultWriteBufferSize,
 		ClientBufferSize:  DefaultClientBufferSize,
-		MessageType:         DefaultMessageType,
+		MessageType:       DefaultMessageType,
 		Protocol:          DefaultProtocol,
 		BucketSize:        DefaultBucketSize,
 	}
@@ -83,18 +83,14 @@ func WithMessageType(MessageType int) OptionSet {
 	}
 }
 
-
-
-func WithContext (ctx context.Context) OptionSet {
+func WithContext(ctx context.Context) OptionSet {
 	return func(h *Option) {
 		h.ctx = ctx
 	}
 }
 
-
-func WithCallBack (callback func ()) OptionSet {
+func WithCallBack(callback func()) OptionSet {
 	return func(h *Option) {
-		h.callback =callback
+		h.callback = callback
 	}
 }
-

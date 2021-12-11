@@ -32,5 +32,5 @@ type Bucketer interface {
 	NotifyBucketConnectionIsClosed()chan <- string
 
 
-	CreateConn(w http.ResponseWriter,r * http.Request,token string)(client.Clienter,error)
+	CreateConn(w http.ResponseWriter,r * http.Request,token string,handler client.Receiver)(client.Clienter,error)
 }

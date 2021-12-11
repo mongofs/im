@@ -25,22 +25,22 @@ const (
 )
 
 type client struct {
-	lastHeartBeatT	int64
-	conn          *websocket.Conn
-	token         string
-	closeFunc     sync.Once
-	done          chan struct{}
-	ctx           context.Context
-	buf           chan []byte
-	closeSig      chan<- string
-	handleReceive func(cli Clienter, data []byte)
+	lastHeartBeatT int64
+	conn           *websocket.Conn
+	token          string
+	closeFunc      sync.Once
+	done           chan struct{}
+	ctx            context.Context
+	buf            chan []byte
+	closeSig       chan<- string
+	handleReceive  Receiver
 
 	protocol    int // json /protobuf
 	messageType int // text /binary
 }
 
 func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
-						readBuffSize, writeBuffSize int, token string, ctx context.Context) (Clienter, error) {
+						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver) (Clienter, error) {
 	res := &client{
 		lastHeartBeatT: time.Now().Unix(),
 		done:        make(chan struct{}),
@@ -51,6 +51,7 @@ func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, 
 		closeSig: closeSig,
 		protocol:    protocol,
 		messageType: messageType,
+		handleReceive: handler,
 	}
 	if err := res.upgrade(w, r, readBuffSize, writeBuffSize); err != nil {
 		return nil, err
@@ -164,7 +165,7 @@ func (c *client) recvProc() {
 			if err != nil {
 				goto loop
 			}
-			c.handleReceive(c, data)
+			c.handleReceive.Handle(c,data)
 		}
 	}
 loop:

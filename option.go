@@ -1,7 +1,7 @@
 package im
 
 import (
-	"github.com/mongofs/im/recieve"
+	"github.com/mongofs/im/client"
 	"github.com/mongofs/im/validate"
 	"github.com/mongofs/im/validate/example"
 )
@@ -21,7 +21,7 @@ const (
 )
 
 var DefaultValidate validate.Validater = &example.DefaultValidate{}
-var DefaultReceive recieve.Receiver = &recieve.Example{}
+var DefaultReceive client.Receiver = &client.Example{}
 
 type Option struct {
 	ClientHeartBeatInterval int // 用户心跳间隔
@@ -37,7 +37,7 @@ type Option struct {
 	ServerRpcPort      string
 	ServerHttpPort     string
 	ServerValidate     validate.Validater
-	ServerReceive      recieve.Receiver
+	ServerReceive      client.Receiver
 }
 
 func DefaultOption() *Option {
@@ -93,7 +93,7 @@ func WithServerBucketNumber(ServerBucketNumber int) OptionFunc {
 	}
 }
 
-func WithServerReceive(ServerReceive recieve.Receiver) OptionFunc {
+func WithServerReceive(ServerReceive client.Receiver) OptionFunc {
 	return func(b *Option) {
 		b.ServerReceive = ServerReceive
 	}

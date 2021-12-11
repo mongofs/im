@@ -1,6 +1,9 @@
 package bucket
 
-import "time"
+import (
+	"github.com/mongofs/im/client"
+	"time"
+)
 
 func (h *bucket) start (){
 	go h.monitor()
@@ -30,22 +33,27 @@ func (h *bucket)monitor (){
 
 
 func (b *bucket)keepAlive (){
+
 	if b.opts.ctx !=nil {
 		for {
 			select {
 			case <-b.opts.ctx.Done():
 				return
 			default:
+				//todo
+				cancelClis := []client.Clienter{}
 				now := time.Now().Unix()
 				b.rw.Lock()
 				for _, cli := range b.clis {
 					if now-cli.LastHeartBeat() < 2*b.opts.HeartBeatInterval {
 						continue
 					}
-					cli.Offline()
+					cancelClis = append(cancelClis,cli)
 				}
 				b.rw.Unlock()
-
+				for _,cancel := range cancelClis{
+					cancel.Offline()
+				}
 			}
 			time.Sleep(10 * time.Second)
 		}
