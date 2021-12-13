@@ -32,6 +32,20 @@ func (s *ImSrever) SendMessage(ctx context.Context, req *im.SendMessageReq) (*im
 }
 
 
+// 相同消息发送给多个用户
+func (s *ImSrever) SendMessageToMultiple(ctx context.Context, req *im.SendMessageToMultipleReq) (*im.SendMessageReply, error) {
+	start  := time.Now()
+	var err error
+	for _,token := range req.Token{
+		bs:= s.bucket(token)
+		err = bs.Send(req.Data,token,false)
+	}
+	escape := time.Since(start)
+	log.Infof(" |%c[1;40;32m RPC-%v | %v  %c[0m",0x1B,"SendMessageToMultiple",escape,0x1B)
+	return &im.SendMessageReply{},err
+}
+
+
 func (s *ImSrever) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.BroadcastReply, error) {
 	start  := time.Now()
 	for _,v :=range s.bs{
@@ -41,3 +55,5 @@ func (s *ImSrever) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.Bro
 	log.Infof(" |%c[1;40;32m RPC-%v | %v  %c[0m",0x1B,"Broadcast",escape,0x1B)
 	return &im.BroadcastReply{},nil
 }
+
+

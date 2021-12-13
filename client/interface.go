@@ -7,6 +7,8 @@ type Clienter  interface {
 	// 调用此方法可以下线用户
 	Offline()
 	//
+	ResetHeartBeatTime()
+
 	LastHeartBeat()int64
 }
 

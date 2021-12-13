@@ -45,7 +45,8 @@ func (b *bucket)keepAlive (){
 				now := time.Now().Unix()
 				b.rw.Lock()
 				for _, cli := range b.clis {
-					if now-cli.LastHeartBeat() < 2*b.opts.HeartBeatInterval {
+					// 如果心跳间隔 时间超过两个心跳包的时间，那么默认用户连接不可用
+					if now-cli.LastHeartBeat() > 2*b.opts.HeartBeatInterval {
 						continue
 					}
 					cancelClis = append(cancelClis,cli)

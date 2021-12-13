@@ -173,7 +173,7 @@ loop:
 }
 
 
-func (c *client) UpLastHeartBeat(){
+func (c *client) ResetHeartBeatTime(){
 	c.lastHeartBeatT =time.Now().Unix()
 }
 
