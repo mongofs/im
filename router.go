@@ -60,8 +60,7 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 		return
 	}
 	if err := s.opt.ServerValidate.Validate(token);err !=nil {
-		cli.Send([]byte("User token validate failed "))
-		cli.Offline()
+		s.opt.ServerValidate.ValidateFailed(err,cli)
 		return
 	}
 	if err := bs.Register(cli,token);err !=nil {
