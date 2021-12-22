@@ -101,13 +101,11 @@ func (h *bucket) Send(data []byte, token string, Ack bool) error{
 }
 
 func (h *bucket) BroadCast(data []byte, Ack bool) {
-	go func() {
-		h.rw.RLock()
-		defer h.rw.RUnlock()
-		for token,cli := range h.clis{
-			h.send(cli,token,data,Ack)
-		}
-	}()
+	h.rw.RLock()
+	defer h.rw.RUnlock()
+	for token,cli := range h.clis{
+		h.send(cli,token,data,Ack)
+	}
 }
 
 func (h *bucket) OffLine(token string) {
