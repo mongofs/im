@@ -20,8 +20,10 @@ func TestCreat100Conn(t *testing.T){
 func TestCreat1000Conn(t *testing.T){
 	tokens := GetSliceOfStrings(1000)
 	for _,v :=range tokens{
+		time.Sleep(20*time.Millisecond)
 		go CreateClient(v)
 	}
+
 	select {}
 }
 

@@ -1,11 +1,6 @@
 package bucket
 
-import (
-	"math/rand"
-	"testing"
-	"time"
-)
-
+/*
 
 var r = rand.New(rand.NewSource(time.Now().Unix()))
 
@@ -42,7 +37,6 @@ func getUserMap(nums int)(Bucketer){
 	bucket := New(DefaultOption())
 	for i:=0 ;i< nums;i++ {
 		user := newCil()
-		bucket.Register(user,user.token)
 	}
 	return bucket
 }
@@ -110,3 +104,4 @@ func BenchmarkHash_100000Send(b *testing.B) {
 }
 
 
+*/
