@@ -105,6 +105,7 @@ func TestOnlines(t *testing.T){
 }
 
 
+
 func TestTickerBroadCast(t *testing.T){
 	cli := Client()
 	ctx := context.Background()
@@ -116,8 +117,9 @@ func TestTickerBroadCast(t *testing.T){
 	tests:= 	&im.BroadcastReq{
 		Data:  []byte(push),
 	}
+
 	for {
-		time.Sleep(500*time.Millisecond)
+		time.Sleep(50*time.Millisecond)
 		fmt.Println(cli.Broadcast(ctx,tests))
 	}
 }

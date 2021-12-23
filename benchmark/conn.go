@@ -7,10 +7,7 @@ import (
 	"math/rand"
 	"time"
 )
-const  (
-	Address = "ws://127.0.0.1:8080/conn"
-	DefaultRpcAddress = "127.0.0.1:8081"
-)
+
 
 
 func CreateClient (token string){
