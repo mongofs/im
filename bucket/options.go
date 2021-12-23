@@ -6,7 +6,7 @@ const (
 	DefaultHeartBeatInterval = 10
 	DefaultReaderBufferSize  = 10
 	DefaultWriteBufferSize   = 10
-	DefaultClientBufferSize  = 10
+	DefaultClientBufferSize  = 10  // 用户的buffersize
 	DefaultMessageType       = 10
 	DefaultProtocol          = 10
 	DefaultBucketSize        = 100

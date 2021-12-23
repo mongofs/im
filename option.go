@@ -140,3 +140,11 @@ func WithBucketSize(BucketSize int) OptionFunc {
 		b.BucketSize = BucketSize
 	}
 }
+
+
+
+func WithRoomOption(BucketSize int) OptionFunc {
+	return func(b *Option) {
+		b.BucketSize = BucketSize
+	}
+}

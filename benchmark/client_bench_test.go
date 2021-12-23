@@ -12,9 +12,16 @@ import (
 func BenchmarkSendMessage(t *testing.B) {
 	cli := Client()
 	ctx := context.Background()
+
+	push:= `{"id":1041584,"user_id":1041584,"cmd":1003,"message_content":"{\"id\":2574952,
+			\"match_id\":1041584,\"type\":0,\"team_main\":\"巴拉卡斯中央\",\"team_cust\":\"基尔梅斯\",
+			\"main_scale\":\"0\",\"guest_scale\":\"0\",\"team_event\":1,
+			\"user_event\":\"费德里科安塞尔莫\"}"}`
+
+
 	data := &im.SendMessageReq{
-		Token: "12345",
-		Data:  []byte("testdata 1"),
+		Token: "IYURAPAURILTIUZBJBDT",
+		Data:  []byte(push),
 	}
 	for i:= 0;i<t.N ;i++ {
 		cli.SendMessage(ctx,data)
