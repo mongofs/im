@@ -107,6 +107,10 @@ func (c *client) LastHeartBeat() int64 {
 }
 
 func (c *client) send(data []byte) {
+
+	if len(c.buf) *10 > cap(c.buf) * 8 {
+		return
+	}
 	c.buf <- data
 }
 

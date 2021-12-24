@@ -19,6 +19,9 @@ const (
 	DefaultServerRpcPort      = ":8081"
 	DefaultServerHttpPort     = ":8080"
 	DefaultServerBuffer       = 200
+
+	DefaultBroadCastHandler = 10
+	DefaultBroadCastBuffer  = 200
 )
 
 var DefaultValidate validate.Validater = &example.DefaultValidate{}
@@ -33,12 +36,15 @@ type Option struct {
 	ClientProtocol          int // 压缩协议
 
 	BucketSize         int // bucket用户
-	ServerBuffer       int // server 的缓冲区
 	ServerBucketNumber int // 所有
 	ServerRpcPort      string
 	ServerHttpPort     string
 	ServerValidate     validate.Validater
 	ServerReceive      client.Receiver
+
+	//broadcast
+	BroadCastBuffer  int
+	BroadCastHandler int
 }
 
 func DefaultOption() *Option {
@@ -51,13 +57,14 @@ func DefaultOption() *Option {
 		ClientProtocol:          DefaultClientProtocol,
 		BucketSize:              DefaultBucketSize,
 
-		ServerBuffer:       DefaultServerBuffer,
 		ServerBucketNumber: DefaultServerBucketNumber, // 所有
 		ServerRpcPort:      DefaultServerRpcPort,
 		ServerHttpPort:     DefaultServerHttpPort,
-
 		ServerValidate: DefaultValidate,
 		ServerReceive:  DefaultReceive,
+
+		BroadCastBuffer: DefaultBroadCastBuffer,
+		BroadCastHandler: DefaultBroadCastHandler,
 	}
 }
 
@@ -143,8 +150,16 @@ func WithBucketSize(BucketSize int) OptionFunc {
 	}
 }
 
-func WithRoomOption(BucketSize int) OptionFunc {
+
+func WithBroadCastBuffer(BroadCastBuffer int)OptionFunc{
 	return func(b *Option) {
-		b.BucketSize = BucketSize
+		b.BroadCastBuffer = BroadCastBuffer
+	}
+}
+
+
+func WithBroadCastHandler(BroadCastHandler int)OptionFunc{
+	return func(b *Option) {
+		b.BroadCastHandler = BroadCastHandler
 	}
 }

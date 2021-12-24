@@ -43,7 +43,7 @@ func (s *ImSrever)PushBroadCast()error{
 
 	wg:= errgroup.Group{}
 
-	for i:= 0;i<10 ;i++{
+	for i:= 0;i<s.opt.BroadCastHandler ;i++{
 		wg.Go(func() error {
 			for {
 				req := <- s.buffer
