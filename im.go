@@ -15,6 +15,7 @@ func New(opts *Option) *ImSrever {
 		ps:     atomic.Int64{},
 		opt:    opts,
 	}
+	b.buffer = make(chan *grpc2.BroadcastReq,opts.ServerBuffer)
 	b.ps.Store(0)
 	b.prepareBucketer()
 	b.prepareGrpcServer()
@@ -51,3 +52,5 @@ func (b *ImSrever) prepareHttpServer() {
 	b.http = http.NewServeMux()
 	b.initRouter()
 }
+
+

@@ -18,11 +18,13 @@ func TestCreat100Conn(t *testing.T){
 
 // 测试3000 个用户同时在线
 func TestCreat3000Conn(t *testing.T){
-	tokens := GetSliceOfStrings(3000)
+	tokens := GetSliceOfStrings(1000)
+	go CreateClient("1234")
 	for _,v :=range tokens{
 		time.Sleep(20*time.Millisecond)
 		go CreateClient(v)
 	}
+
 
 	select {}
 }

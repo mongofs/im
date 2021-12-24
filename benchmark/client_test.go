@@ -118,8 +118,17 @@ func TestTickerBroadCast(t *testing.T){
 		Data:  []byte(push),
 	}
 
+
+	counter := 0
+	// 50 下推
 	for {
-		time.Sleep(50*time.Millisecond)
-		fmt.Println(cli.Broadcast(ctx,tests))
+		time.Sleep(1*time.Millisecond)
+		res,err := cli.Broadcast(ctx,tests)
+		counter++
+		if err !=nil {
+			fmt.Println("error current :",err,counter)
+			continue
+		}
+		fmt.Println("当前堆积：",res.Size,",当前消息序号",counter)
 	}
 }

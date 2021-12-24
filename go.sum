@@ -86,6 +86,8 @@ github.com/mongofs/api v0.0.0-20211206043944-0bc188c6df7a h1:gbGXrPNPkiu8pZJY9Bq
 github.com/mongofs/api v0.0.0-20211206043944-0bc188c6df7a/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
 github.com/mongofs/api v0.0.0-20211213065031-e14e8c59ae69 h1:OopIMdLpGdo5Xss3P40yGwssseMeS4xfOlBn8y8KLXc=
 github.com/mongofs/api v0.0.0-20211213065031-e14e8c59ae69/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
+github.com/mongofs/api v0.0.0-20211224030416-43aee6abd907 h1:wEE3/u3rwpnuviTFz50KeB0hX/xXJpAr/sPTiMFIshY=
+github.com/mongofs/api v0.0.0-20211224030416-43aee6abd907/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

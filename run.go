@@ -19,6 +19,7 @@ func (s *ImSrever)Run ()error {
 	wg.Go(s.runhttpServer)
 	wg.Go(s.runGrpcServer)
 	wg.Go(s.monitor)
+	wg.Go(s.PushBroadCast)
 	return wg.Wait()
 }
 

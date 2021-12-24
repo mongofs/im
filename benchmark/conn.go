@@ -18,6 +18,9 @@ func CreateClient (token string){
 		return
 	}
 	defer conn.Close()
+
+
+	counter :=0
 	for {
 		messageType, messageData, err := conn.ReadMessage()
 		if nil != err {
@@ -26,9 +29,12 @@ func CreateClient (token string){
 		}
 		switch messageType {
 		case websocket.TextMessage://文本数据
-			fmt.Println(string(messageData))
+			counter++
+			if token == "1234"{
+				fmt.Println(string(messageData),"这是消息：",counter)
+			}
 		case websocket.BinaryMessage://二进制数据
-			fmt.Println(messageData)
+
 		case websocket.CloseMessage://关闭
 		case websocket.PingMessage://Ping
 		case websocket.PongMessage://Pong
