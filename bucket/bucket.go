@@ -2,8 +2,10 @@ package bucket
 
 import (
 	"errors"
+	"fmt"
 	"github.com/mongofs/im/ack"
 	"github.com/mongofs/im/client"
+	log "github.com/sirupsen/logrus"
 	"go.uber.org/atomic"
 	"net/http"
 	"sync"
@@ -124,6 +126,7 @@ func (h *bucket) Register(cli client.Clienter,token string) error {
 	defer h.rw.Unlock()
 	old,ok := h.clis[token];
 	if ok {
+		log.Infof(fmt.Sprintf("im: User token %s is online, but is trying to connect again",token))
 		clienter ,_:= old.(*client.Cli)
 		clienter.OfflineForRetry(true)
 	}
