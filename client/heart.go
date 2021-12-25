@@ -1,8 +1,10 @@
 package client
 
+import "fmt"
+
 type Example struct {}
 
 
 func ( e *Example) Handle (cli Clienter,data []byte){
-	cli.Send(data)
+	fmt.Println(string(data))
 }

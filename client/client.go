@@ -39,6 +39,12 @@ type client struct {
 	messageType int // text /binary
 }
 
+func (c * client)Token()string{
+	return c.token
+}
+
+
+
 func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
 						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver) (Clienter, error) {
 	res := &client{
@@ -107,15 +113,15 @@ func (c *client) LastHeartBeat() int64 {
 }
 
 func (c *client) send(data []byte) {
-
 	if len(c.buf) *10 > cap(c.buf) * 8 {
 		return
 	}
 	c.buf <- data
 }
 
-func (c *client) Offline() {
-	c.close()
+// param retry ,if retry is ture , don't delete the token
+func (c *client) Offline(forRetry ...bool) {
+	c.close(forRetry ...)
 }
 
 func (c *client) start() error {
@@ -135,6 +141,7 @@ func (c *client) sendProc() {
 		case data := <-c.buf:
 			err := c.conn.WriteMessage(c.messageType, data)
 			if err != nil {
+				// log.Error(err.Error())
 				goto loop
 			}
 		case <-c.done:
@@ -145,12 +152,21 @@ loop:
 	c.close()
 }
 
-func (c *client) close() {
+// 如果close 是为了重连，就没有
+func (c *client) close(forRetry ...bool) {
+	flag := false
+	if len(forRetry)> 0 {
+		flag =forRetry[0]
+	}
+
 	c.closeFunc.Do(func() {
 		close(c.done)
-		time.Sleep(waitTime * time.Millisecond)
 		c.conn.Close()
-		c.closeSig <- c.token
+		if ! flag {
+			c.closeSig <- c.token
+		}
+
+		//log.Info(fmt.Sprintf("client : %s is offline",c.token))
 	})
 }
 
@@ -167,6 +183,7 @@ func (c *client) recvProc() {
 		default:
 			_, data, err := c.conn.ReadMessage()
 			if err != nil {
+				// log.Error(err.Error())
 				goto loop
 			}
 			c.handleReceive.Handle(c,data)

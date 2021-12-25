@@ -2,6 +2,7 @@ package bucket
 
 import (
 	"github.com/mongofs/im/client"
+	"go.uber.org/atomic"
 	"time"
 )
 
@@ -10,6 +11,7 @@ func (h *bucket) start (){
 	go h.keepAlive()
 }
 
+var temcounter  atomic.Int64
 
 func (h *bucket)monitor (){
 	if h.opts.ctx !=nil {
@@ -33,14 +35,12 @@ func (h *bucket)monitor (){
 
 
 func (b *bucket)keepAlive (){
-
 	if b.opts.ctx !=nil {
 		for {
 			select {
 			case <-b.opts.ctx.Done():
 				return
 			default:
-				//todo
 				cancelClis := []client.Clienter{}
 				now := time.Now().Unix()
 				b.rw.Lock()
@@ -75,14 +75,14 @@ func (b *bucket)keepAlive (){
 }
 
 
-
-func (h *bucket)delUser(token string){
+func (h *bucket)delUser(token string) {
 	h.rw.Lock()
-	defer h.rw.Unlock()
-	delete(h.clis,token)
+	delete(h.clis, token)
+	h.rw.Unlock()
 	h.np.Add(-1)
-	if h.opts.callback !=nil {
+	if h.opts.callback != nil {
 		h.opts.callback()
 	}
 }
+
 

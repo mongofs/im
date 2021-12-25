@@ -38,7 +38,7 @@ func New(option *Option) Bucketer {
 	res := & bucket{
 		rw:       sync.RWMutex{},
 		np:       &atomic.Int64{},
-		closeSig: make(chan string,1),
+		closeSig: make(chan string,0),
 		opts: option,
 	}
 	res.clis = make(map[string]client.Clienter,res.opts.BucketSize)
@@ -92,8 +92,9 @@ func (h *bucket) send (cli client.Clienter,token string,data []byte,ack bool)err
 
 func (h *bucket) Send(data []byte, token string, Ack bool) error{
 	h.rw.RLock()
-	defer h.rw.RUnlock()
-	if cli ,ok:= h.clis[token];!ok{
+	cli ,ok:= h.clis[token];
+	h.rw.RUnlock()
+	if !ok{
 		return ErrCliISNil
 	}else {
 		return h.send(cli,token,data,Ack)
@@ -121,10 +122,13 @@ func (h *bucket) Register(cli client.Clienter,token string) error {
 	}
 	h.rw.Lock()
 	defer h.rw.Unlock()
-	if old,ok := h.clis[token]; ok {
-		old.Offline()
+	old,ok := h.clis[token];
+	if ok {
+		old.Offline(true)
 	}
 	h.clis[token] = cli
+
+
 	h.np.Add(1)
 	return nil
 }
@@ -142,4 +146,7 @@ func (h *bucket) IsOnline(token string) bool {
 func (h *bucket)NotifyBucketConnectionIsClosed()chan <- string{
 	return h.closeSig
 }
+
+
+
 

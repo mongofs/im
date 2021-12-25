@@ -15,6 +15,8 @@ type room interface {
 
 	GetRoomCreateTime() int64 // 获取当前房间创建时间
 
+	GetRoomUserToken()[]string // 获取当前房间用户
+
 }
 
 // 房间管理器

@@ -19,8 +19,13 @@ func CreateClient (token string){
 	}
 	defer conn.Close()
 
-
 	counter :=0
+
+	go func() {
+		time.Sleep(10*time.Second)
+		conn.WriteMessage(websocket.TextMessage,[]byte(fmt.Sprintf(" heartbeat %s",token)))
+	}()
+
 	for {
 		messageType, messageData, err := conn.ReadMessage()
 		if nil != err {
@@ -43,6 +48,9 @@ func CreateClient (token string){
 		}
 	}
 }
+
+
+
 
 var r = rand.New(rand.NewSource(time.Now().Unix()))
 

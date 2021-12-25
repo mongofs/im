@@ -14,7 +14,9 @@ type MapRoom struct {
 	createTime int64
 }
 
-
+func (m *MapRoom) GetRoomUserToken() []string {
+	panic("implement me")
+}
 
 func (m *MapRoom) GetRoomCreateTime() int64 {
 	return m.createTime
