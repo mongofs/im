@@ -24,7 +24,7 @@ const (
 
 )
 
-type client struct {
+type Cli struct {
 	lastHeartBeatT int64
 	conn           *websocket.Conn
 	token          string
@@ -39,7 +39,7 @@ type client struct {
 	messageType int // text /binary
 }
 
-func (c * client)Token()string{
+func (c * Cli)Token()string{
 	return c.token
 }
 
@@ -47,7 +47,7 @@ func (c * client)Token()string{
 
 func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
 						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver) (Clienter, error) {
-	res := &client{
+	res := &Cli{
 		lastHeartBeatT: time.Now().Unix(),
 		done:        make(chan struct{}),
 		closeFunc:   sync.Once{},
@@ -68,7 +68,7 @@ func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, 
 	return res, nil
 }
 
-func (c *client) upgrade(w http.ResponseWriter, r *http.Request, readerSize, writeSize int) error {
+func (c *Cli) upgrade(w http.ResponseWriter, r *http.Request, readerSize, writeSize int) error {
 	conn, err := (&websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -83,7 +83,7 @@ func (c *client) upgrade(w http.ResponseWriter, r *http.Request, readerSize, wri
 	return nil
 }
 
-func (c *client) Send(data []byte, i ...int64) error {
+func (c *Cli) Send(data []byte, i ...int64) error {
 	var (
 		sid int64
 		d   []byte
@@ -108,11 +108,11 @@ func (c *client) Send(data []byte, i ...int64) error {
 	return nil
 }
 
-func (c *client) LastHeartBeat() int64 {
+func (c *Cli) LastHeartBeat() int64 {
 	return c.lastHeartBeatT
 }
 
-func (c *client) send(data []byte) {
+func (c *Cli) send(data []byte) {
 	if len(c.buf) *10 > cap(c.buf) * 8 {
 		return
 	}
@@ -120,17 +120,23 @@ func (c *client) send(data []byte) {
 }
 
 // param retry ,if retry is ture , don't delete the token
-func (c *client) Offline(forRetry ...bool) {
-	c.close(forRetry ...)
+func (c *Cli) Offline() {
+	c.close(false)
 }
 
-func (c *client) start() error {
+
+func (c *Cli)OfflineForRetry(retry ...bool){
+	c.close(retry...)
+}
+
+
+func (c *Cli) start() error {
 	go c.sendProc()
 	go c.recvProc()
 	return nil
 }
 
-func (c *client) sendProc() {
+func (c *Cli) sendProc() {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error(fmt.Sprintf("Client :	 '%v' current panic :'%v'", c.token, err))
@@ -153,7 +159,7 @@ loop:
 }
 
 // 如果close 是为了重连，就没有
-func (c *client) close(forRetry ...bool) {
+func (c *Cli) close(forRetry ...bool) {
 	flag := false
 	if len(forRetry)> 0 {
 		flag =forRetry[0]
@@ -170,7 +176,7 @@ func (c *client) close(forRetry ...bool) {
 	})
 }
 
-func (c *client) recvProc() {
+func (c *Cli) recvProc() {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error(fmt.Sprintf("Client :	'%v' current panic :'%v'", c.token, err))
@@ -194,7 +200,7 @@ loop:
 }
 
 
-func (c *client) ResetHeartBeatTime(){
+func (c *Cli) ResetHeartBeatTime(){
 	c.lastHeartBeatT =time.Now().Unix()
 }
 

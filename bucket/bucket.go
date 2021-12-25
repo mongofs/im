@@ -124,11 +124,10 @@ func (h *bucket) Register(cli client.Clienter,token string) error {
 	defer h.rw.Unlock()
 	old,ok := h.clis[token];
 	if ok {
-		old.Offline(true)
+		clienter ,_:= old.(*client.Cli)
+		clienter.OfflineForRetry(true)
 	}
 	h.clis[token] = cli
-
-
 	h.np.Add(1)
 	return nil
 }

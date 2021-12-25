@@ -10,7 +10,7 @@ func TestRepeatConnection(t *testing.T){
 
 	var token = "12345"
 
-	for i:= 0; i<2;i++ {
+	for i:= 0; i<10;i++ {
 		go CreateClient(token)
 	}
 	select {}

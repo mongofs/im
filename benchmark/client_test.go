@@ -122,7 +122,7 @@ func TestTickerBroadCast(t *testing.T){
 	counter := 0
 	// 50 下推
 	for {
-		time.Sleep(1*time.Millisecond)
+		time.Sleep(200*time.Millisecond)
 		res,err := cli.Broadcast(ctx,tests)
 		counter++
 		if err !=nil {

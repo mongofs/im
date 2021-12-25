@@ -10,6 +10,7 @@ import (
 // 测试100 个用户同时在线
 func TestCreat100Conn(t *testing.T){
 	tokens := GetSliceOfStrings(100)
+	go CreateClient("1234")
 	for _,v :=range tokens{
 		go CreateClient(v)
 	}
@@ -18,7 +19,7 @@ func TestCreat100Conn(t *testing.T){
 
 // 测试3000 个用户同时在线
 func TestCreat3000Conn(t *testing.T){
-	tokens := GetSliceOfStrings(1000)
+	tokens := GetSliceOfStrings(2000)
 	go CreateClient("1234")
 	for _,v :=range tokens{
 		time.Sleep(20*time.Millisecond)
