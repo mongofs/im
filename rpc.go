@@ -3,6 +3,7 @@ package im
 import (
 	"context"
 	"errors"
+	"fmt"
 	im "github.com/mongofs/api/im/v1"
 	log "github.com/sirupsen/logrus"
 	"time"
@@ -48,7 +49,9 @@ func (s *ImSrever) SendMessageToMultiple(ctx context.Context, req *im.SendMessag
 
 // 广播消息给用户
 func (s *ImSrever) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.BroadcastReply, error) {
-	if len(s.buffer) *10  > 8* cap(s.buffer){ return nil,errors.New("im: too much message")}
+	if len(s.buffer) *10  > 8* cap(s.buffer){
+		return nil,errors.New(fmt.Sprintf("im: too much message ,buffer length is  %v but cap is %v",len(s.buffer),cap(s.buffer)))
+	}
 	start  := time.Now()
 	s.buffer <- req
 	escape := time.Since(start)
