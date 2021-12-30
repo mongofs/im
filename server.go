@@ -40,9 +40,7 @@ func (s *ImSrever)monitor ()error{
 
 // 单独处理广播业务
 func (s *ImSrever)PushBroadCast()error{
-
 	wg:= errgroup.Group{}
-
 	for i:= 0;i<s.opt.BroadCastHandler ;i++{
 		wg.Go(func() error {
 			for {
@@ -54,7 +52,8 @@ func (s *ImSrever)PushBroadCast()error{
 			return nil
 		})
 	}
-	return nil
+
+	return wg.Wait()
 }
 
 
