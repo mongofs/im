@@ -109,6 +109,7 @@ func (h *bucket) BroadCast(data []byte, Ack bool) error{
 	for token,cli := range h.clis{
 		err := h.send(cli,token,data,Ack)
 		if err !=nil {
+			log.Infof("im/bucket: %v",err)
 			counter ++
 		}
 	}
@@ -119,9 +120,11 @@ func (h *bucket) BroadCast(data []byte, Ack bool) error{
 
 func (h *bucket) OffLine(token string) {
 	h.rw.RLock()
-	defer h.rw.RUnlock()
-	cli := h.clis[token]
-	cli.Offline()
+	cli,ok := h.clis[token]
+	h.rw.RUnlock()
+	if ok {
+		cli.Offline()
+	}
 }
 
 func (h *bucket) Register(cli client.Clienter,token string) error {

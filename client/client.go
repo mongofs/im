@@ -119,6 +119,7 @@ func (c *Cli) send(data []byte) error{
 	if len(c.buf) *10 > cap(c.buf) * 7 {
 		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
 	}
+
 	c.buf <- data
 	return nil
 }

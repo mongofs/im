@@ -3,6 +3,7 @@ package im
 import (
 	im "github.com/mongofs/api/im/v1"
 	"github.com/mongofs/im/bucket"
+	log "github.com/sirupsen/logrus"
 	"go.uber.org/atomic"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -47,8 +48,10 @@ func (s *ImSrever)PushBroadCast()error{
 			for {
 				req := <- s.buffer
 				for _,v :=range s.bs{
-					v.BroadCast(req.Data,false)
-					//todo
+					err := v.BroadCast(req.Data,false)
+					if err !=nil {
+						log.Infof("im/server: broadcast current error : %v",err)
+					}
 				}
 			}
 			return nil

@@ -48,7 +48,7 @@ func (b *bucket)keepAlive (){
 				b.rw.Lock()
 				for _, cli := range b.clis {
 					// 如果心跳间隔 时间超过两个心跳包的时间，那么默认用户连接不可用
-					if now-cli.LastHeartBeat() > 2*b.opts.HeartBeatInterval {
+					if now-cli.LastHeartBeat() < 2*b.opts.HeartBeatInterval {
 						continue
 					}
 					cancelClis = append(cancelClis,cli)
@@ -68,7 +68,9 @@ func (b *bucket)keepAlive (){
 		b.rw.Lock()
 		for _, cli := range b.clis {
 			// 如果心跳间隔 时间超过两个心跳包的时间，那么默认用户连接不可用
-			if now-cli.LastHeartBeat() > 2*b.opts.HeartBeatInterval {
+			interval := now-cli.LastHeartBeat()
+
+			if  interval< 2*b.opts.HeartBeatInterval {
 				continue
 			}
 			cancelClis = append(cancelClis,cli)
