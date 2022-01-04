@@ -1,17 +1,18 @@
 package client
 
+import "net/http"
 
-type Clienter  interface {
+type Clienter interface {
 	// 调用此方法可以给当前用户发送消息
-	Send([]byte,...int64)error
+	Send([]byte, ...int64) error
 	// 用户下线
 	Offline()
-	//
+
 	ResetHeartBeatTime()
 
-	LastHeartBeat()int64
+	LastHeartBeat() int64
 
-	Token()string
+	Token() string
+
+	Request()*http.Request
 }
-
-

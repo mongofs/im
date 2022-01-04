@@ -25,6 +25,7 @@ type ImSrever struct {
 
 
 // 统计用户在线人数
+// 监控buffer 长度 并进行报警
 func (s *ImSrever)monitor ()error{
 	for{
 		n := int64(0)
@@ -47,6 +48,7 @@ func (s *ImSrever)PushBroadCast()error{
 				req := <- s.buffer
 				for _,v :=range s.bs{
 					v.BroadCast(req.Data,false)
+					//todo
 				}
 			}
 			return nil

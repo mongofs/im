@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -27,6 +28,7 @@ const (
 type Cli struct {
 	lastHeartBeatT int64
 	conn           *websocket.Conn
+	reader 		*http.Request
 	token          string
 	closeFunc      sync.Once
 	done           chan struct{}
@@ -50,6 +52,7 @@ func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, 
 	res := &Cli{
 		lastHeartBeatT: time.Now().Unix(),
 		done:        make(chan struct{}),
+		reader: r,
 		closeFunc:   sync.Once{},
 		buf:         make(chan []byte, buffer),
 		token:       token,
@@ -104,7 +107,7 @@ func (c *Cli) Send(data []byte, i ...int64) error {
 	if err != nil {
 		return err
 	}
-	c.send(d)
+	if err := c.send(d) ;err !=nil {return err}
 	return nil
 }
 
@@ -112,11 +115,12 @@ func (c *Cli) LastHeartBeat() int64 {
 	return c.lastHeartBeatT
 }
 
-func (c *Cli) send(data []byte) {
-	if len(c.buf) *10 > cap(c.buf) * 8 {
-		return
+func (c *Cli) send(data []byte) error{
+	if len(c.buf) *10 > cap(c.buf) * 7 {
+		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
 	}
 	c.buf <- data
+	return nil
 }
 
 // param retry ,if retry is ture , don't delete the token
@@ -205,3 +209,8 @@ func (c *Cli) ResetHeartBeatTime(){
 }
 
 
+
+func (c *Cli)Request()*http.Request{
+
+	return c.reader
+}

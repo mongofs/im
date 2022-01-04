@@ -13,6 +13,8 @@ func (h *bucket) start (){
 
 var temcounter  atomic.Int64
 
+
+// 删除用户
 func (h *bucket)monitor (){
 	if h.opts.ctx !=nil {
 		for  {
@@ -33,7 +35,7 @@ func (h *bucket)monitor (){
 }
 
 
-
+// 在线心跳
 func (b *bucket)keepAlive (){
 	if b.opts.ctx !=nil {
 		for {
@@ -61,18 +63,28 @@ func (b *bucket)keepAlive (){
 	}
 
 	for {
+		cancelClis := []client.Clienter{}
 		now := time.Now().Unix()
 		b.rw.Lock()
 		for _, cli := range b.clis {
-			if now-cli.LastHeartBeat() < 2*b.opts.HeartBeatInterval {
+			// 如果心跳间隔 时间超过两个心跳包的时间，那么默认用户连接不可用
+			if now-cli.LastHeartBeat() > 2*b.opts.HeartBeatInterval {
 				continue
 			}
-			cli.Offline()
+			cancelClis = append(cancelClis,cli)
 		}
 		b.rw.Unlock()
+		for _,cancel := range cancelClis{
+			cancel.Offline()
+		}
+
 		time.Sleep(10 * time.Second)
 	}
 }
+
+
+
+
 
 
 func (h *bucket)delUser(token string) {

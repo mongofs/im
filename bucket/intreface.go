@@ -11,7 +11,7 @@ type Bucketer interface {
 	Send(data []byte, token string ,Ack bool)error
 
 	// Send messages to all online users
-	BroadCast(data []byte ,Ack bool)
+	BroadCast(data []byte ,Ack bool)error
 
 	// Kick users offline
 	OffLine(token string)

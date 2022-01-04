@@ -85,9 +85,9 @@ func (h *bucket) send (cli client.Clienter,token string,data []byte,ack bool)err
 		if err := h.ack.AddMessage(token,sid,data);err !=nil{
 			return err
 		}
-		cli.Send(data,sid)
+		return  cli.Send(data,sid)
 	}else{
-		cli.Send(data)
+		return cli.Send(data)
 	}
 	return nil
 }
@@ -103,12 +103,18 @@ func (h *bucket) Send(data []byte, token string, Ack bool) error{
 	}
 }
 
-func (h *bucket) BroadCast(data []byte, Ack bool) {
+func (h *bucket) BroadCast(data []byte, Ack bool) error{
+	counter := 0
 	h.rw.RLock()
 	for token,cli := range h.clis{
-		h.send(cli,token,data,Ack)
+		err := h.send(cli,token,data,Ack)
+		if err !=nil {
+			counter ++
+		}
 	}
 	h.rw.RUnlock()
+	if counter !=0 {return fmt.Errorf("im/client : some user  can't arrive , the count is %v",counter)}
+	return nil
 }
 
 func (h *bucket) OffLine(token string) {
