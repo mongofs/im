@@ -120,6 +120,9 @@ func (c *Cli) LastHeartBeat() int64 {
 
 func (c *Cli) send(data []byte) error{
 	if len(c.buf) *10 > cap(c.buf) * 7 {
+		// 记录当前用户被丢弃的信息
+		c.log.Infof(fmt.Sprintf("im/client: 用户消息通道堵塞 , token is %s ,len %v but user cap is %v",c.token,len(c.buf),cap(c.buf)))
+
 		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
 	}
 
@@ -147,15 +150,20 @@ func (c *Cli) start() error {
 func (c *Cli) sendProc() {
 	defer func() {
 		if err := recover(); err != nil {
-			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' current panic :'%v'", c.token, err)))
+			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' 发生panic错误 :'%v'", c.token, err)))
 		}
 	}()
 	for {
 		select {
 		case data := <-c.buf:
+			temtime := time.Now()
 			err := c.conn.WriteMessage(c.messageType, data)
+			spendTime :=time.Since(temtime)
+			if spendTime > time.Duration(2) *time.Second {
+				c.log.Infof(fmt.Sprintf("im/client :token '%v'网络状态不好，消息写入通道时间过长 :'%v'", c.token,spendTime))
+			}
 			if err != nil {
-				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' writeMessage error :'%v'", c.token, err)))
+				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' 消息写入通道发生错误 :'%v'", c.token, err)))
 				goto loop
 			}
 		case <-c.done:
@@ -187,7 +195,7 @@ func (c *Cli) close(forRetry ...bool) {
 func (c *Cli) recvProc() {
 	defer func() {
 		if err := recover(); err != nil {
-			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' current panic :'%v'", c.token, err)))
+			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' 发生panic错误  :'%v'", c.token, err)))
 		}
 	}()
 	for {
@@ -197,7 +205,7 @@ func (c *Cli) recvProc() {
 		default:
 			_, data, err := c.conn.ReadMessage()
 			if err != nil {
-				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' recvProc error :'%v'", c.token, err)))
+				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' 消息通道读取发生错误 :'%v'", c.token, err)))
 				goto loop
 			}
 			c.handleReceive.Handle(c,data)

@@ -122,7 +122,7 @@ func (h *bucket) BroadCast(data []byte, Ack bool) error{
 		}
 	}
 	h.rw.RUnlock()
-	if counter !=0 {return fmt.Errorf("im/bucket :  broadcast success count  %v  failed  count is %v", success,counter)}
+	if counter !=0 {return fmt.Errorf("im/bucket :  bucket 广播成功数量 %v ，广播失败数量 is %v", success,counter)}
 	return nil
 }
 
