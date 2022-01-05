@@ -119,7 +119,7 @@ func (h *bucket) BroadCast(data []byte, Ack bool) error{
 		if err !=nil {
 			//log.Infof("im/bucket: %v",err)
 			counter ++
-			failedTokens = failedTokens +"."
+			failedTokens = failedTokens +"." +token
 		}else {
 			success ++
 		}
