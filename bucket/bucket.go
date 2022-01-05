@@ -111,18 +111,21 @@ func (h *bucket) Send(data []byte, token string, Ack bool) error{
 func (h *bucket) BroadCast(data []byte, Ack bool) error{
 	counter := 0
 	success :=0
+
+	failedTokens := ""
 	h.rw.RLock()
 	for token,cli := range h.clis{
 		err := h.send(cli,token,data,Ack)
 		if err !=nil {
 			//log.Infof("im/bucket: %v",err)
 			counter ++
+			failedTokens = failedTokens +"."
 		}else {
 			success ++
 		}
 	}
 	h.rw.RUnlock()
-	if counter !=0 {return fmt.Errorf("im/bucket :  bucket 广播成功数量 %v ，广播失败数量 is %v", success,counter)}
+	if counter !=0 {return fmt.Errorf("im/bucket :  bucket 广播成功数量 %v ，广播失败数量 is %v,具体tokens :%s", success,counter,failedTokens)}
 	return nil
 }
 
