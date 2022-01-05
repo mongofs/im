@@ -1,6 +1,8 @@
 package bucket
 
-import "context"
+import (
+	"context"
+)
 
 const (
 	DefaultHeartBeatInterval = 10
@@ -34,6 +36,7 @@ func DefaultOption() *Option {
 		MessageType:       DefaultMessageType,
 		Protocol:          DefaultProtocol,
 		BucketSize:        DefaultBucketSize,
+
 	}
 }
 

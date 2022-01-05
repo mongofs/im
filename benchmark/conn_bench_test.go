@@ -9,7 +9,7 @@ import (
 
 // 测试100 个用户同时在线
 func TestCreat100Conn(t *testing.T){
-	tokens := GetSliceOfStrings(1000)
+	tokens := GetSliceOfStrings(100)
 	go CreateClient("1234")
 	for _,v :=range tokens{
 		time.Sleep(20*time.Millisecond)

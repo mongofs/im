@@ -1,13 +1,8 @@
 package im
 
 import (
-	"fmt"
 	"net"
 	"net/http"
-	"path"
-	"runtime"
-
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -26,10 +21,10 @@ func (s *ImSrever)Run ()error {
 
 func (s *ImSrever)runGrpcServer ()error{
 	listen, err := net.Listen("tcp", s.opt.ServerRpcPort)
-	if err !=nil { log.Fatal(err) }
-	log.Info("start GRPC server at ", s.opt.ServerRpcPort)
+	if err !=nil { s.opt.ServerLogger.Fatal(err) }
+	s.opt.ServerLogger.Infof("im/run : start GRPC server at %s ", s.opt.ServerRpcPort)
 	if err := s.rpc.Serve(listen);err !=nil {
-		log.Fatal(err)
+		s.opt.ServerLogger.Fatal(err)
 	}
 
 	return nil
@@ -38,10 +33,10 @@ func (s *ImSrever)runGrpcServer ()error{
 
 func (s *ImSrever)runhttpServer ()error{
 	listen, err := net.Listen("tcp", s.opt.ServerHttpPort)
-	if err !=nil { log.Fatal(err) }
-	log.Info("start HTTP server at ", s.opt.ServerHttpPort)
+	if err !=nil { s.opt.ServerLogger.Fatal(err) }
+	s.opt.ServerLogger.Infof("im/run : start HTTP server at %s ", s.opt.ServerHttpPort)
 	if err := http.Serve(listen,s.http);err !=nil {
-		log.Fatal(err)
+		s.opt.ServerLogger.Fatal(err)
 	}
 	return nil
 }
@@ -54,12 +49,3 @@ func (s *ImSrever)Close()error{
 }
 
 
-func init() {
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			filename := path.Base(f.File)
-			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf(" %s:%d", filename, f.Line)
-		},
-	})
-}

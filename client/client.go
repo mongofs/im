@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mongofs/im/log"
 	"net/http"
 	"sync"
 	"time"
@@ -37,6 +38,7 @@ type Cli struct {
 	closeSig       chan<- string
 	handleReceive  Receiver
 
+	log log.Logger
 	protocol    int // json /protobuf
 	messageType int // text /binary
 }
@@ -48,7 +50,7 @@ func (c * Cli)Token()string{
 
 
 func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
-						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver) (Clienter, error) {
+						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver,log log.Logger) (Clienter, error) {
 	res := &Cli{
 		lastHeartBeatT: time.Now().Unix(),
 		done:        make(chan struct{}),
@@ -61,6 +63,7 @@ func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, 
 		protocol:    protocol,
 		messageType: messageType,
 		handleReceive: handler,
+		log: log,
 	}
 	if err := res.upgrade(w, r, readBuffSize, writeBuffSize); err != nil {
 		return nil, err
@@ -144,7 +147,7 @@ func (c *Cli) start() error {
 func (c *Cli) sendProc() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Error(fmt.Sprintf("Client :	 '%v' current panic :'%v'", c.token, err))
+			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' current panic :'%v'", c.token, err)))
 		}
 	}()
 	for {
@@ -152,7 +155,7 @@ func (c *Cli) sendProc() {
 		case data := <-c.buf:
 			err := c.conn.WriteMessage(c.messageType, data)
 			if err != nil {
-				// log.Error(err.Error())
+				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' writeMessage error :'%v'", c.token, err)))
 				goto loop
 			}
 		case <-c.done:
@@ -184,7 +187,7 @@ func (c *Cli) close(forRetry ...bool) {
 func (c *Cli) recvProc() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Error(fmt.Sprintf("Client :	'%v' current panic :'%v'", c.token, err))
+			c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' current panic :'%v'", c.token, err)))
 		}
 	}()
 	for {
@@ -194,7 +197,7 @@ func (c *Cli) recvProc() {
 		default:
 			_, data, err := c.conn.ReadMessage()
 			if err != nil {
-				// log.Error(err.Error())
+				c.log.Error(errors.New(fmt.Sprintf("im/client :	token '%v' recvProc error :'%v'", c.token, err)))
 				goto loop
 			}
 			c.handleReceive.Handle(c,data)

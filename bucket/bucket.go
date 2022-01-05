@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/mongofs/im/ack"
 	"github.com/mongofs/im/client"
-	log "github.com/sirupsen/logrus"
+	"github.com/mongofs/im/log"
 	"go.uber.org/atomic"
 	"net/http"
 	"sync"
@@ -13,8 +13,8 @@ import (
 
 
 var (
-	ErrUserExist =errors.New("hash : Cannot login repeatedly")
-	ErrCliISNil  =errors.New("hash : cli is nil")
+	ErrUserExist =errors.New("im/bucket : Cannot login repeatedly")
+	ErrCliISNil  =errors.New("im/bucket : cli is nil")
 )
 
 type bucket struct {
@@ -32,16 +32,20 @@ type bucket struct {
 	// Ack map
 	ack ack.Acker
 
+	// log
+	log log.Logger
+
 
 	opts * Option
 }
 
-func New(option *Option) Bucketer {
+func New(log log.Logger,option *Option) Bucketer {
 	res := & bucket{
 		rw:       sync.RWMutex{},
 		np:       &atomic.Int64{},
 		closeSig: make(chan string,0),
 		opts: option,
+		log :log,
 	}
 	res.clis = make(map[string]client.Clienter,res.opts.BucketSize)
 	res.start()
@@ -66,7 +70,8 @@ func(h *bucket)CreateConn(w http.ResponseWriter,r * http.Request,token string,ha
 				h.opts.WriteBufferSize,
 				token ,
 				h.opts.ctx,
-				handler)
+				handler,
+				h.log)
 }
 
 func (h *bucket)randId()int64{
@@ -105,16 +110,19 @@ func (h *bucket) Send(data []byte, token string, Ack bool) error{
 
 func (h *bucket) BroadCast(data []byte, Ack bool) error{
 	counter := 0
+	success :=0
 	h.rw.RLock()
 	for token,cli := range h.clis{
 		err := h.send(cli,token,data,Ack)
 		if err !=nil {
-			log.Infof("im/bucket: %v",err)
+			//log.Infof("im/bucket: %v",err)
 			counter ++
+		}else {
+			success ++
 		}
 	}
 	h.rw.RUnlock()
-	if counter !=0 {return fmt.Errorf("im/client : some user  can't arrive , the count is %v",counter)}
+	if counter !=0 {return fmt.Errorf("im/bucket :  broadcast success count  %v  failed  count is %v", success,counter)}
 	return nil
 }
 
@@ -135,7 +143,7 @@ func (h *bucket) Register(cli client.Clienter,token string) error {
 	defer h.rw.Unlock()
 	old,ok := h.clis[token];
 	if ok {
-		log.Infof(fmt.Sprintf("im: User token %s is online, but is trying to connect again",token))
+		h.log.Warnf("im/bucket : User token %s is online, but is trying to connect again",token)
 		clienter ,_:= old.(*client.Cli)
 		clienter.OfflineForRetry(true)
 	}

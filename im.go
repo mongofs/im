@@ -39,7 +39,7 @@ func (h *ImSrever) prepareBucketer() {
 	}
 
 	for i:= 0 ;i<h.opt.ServerBucketNumber;i ++ {
-		h.bs[i] = bucket.New(BucketOptionSet)
+		h.bs[i] = bucket.New(h.opt.ServerLogger,BucketOptionSet)
 	}
 }
 

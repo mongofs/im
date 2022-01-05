@@ -4,10 +4,11 @@ go 1.14
 
 require (
 	github.com/garyburd/redigo v1.6.3
-	github.com/gin-gonic/gin v1.7.7
+	github.com/gin-gonic/gin v1.7.7 // indirect
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/mongofs/api v0.0.0-20211224030416-43aee6abd907
+	github.com/mongofs/log v0.0.0-20211119020135-e51080dd6d44
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.7.0
@@ -18,4 +19,5 @@ require (
 	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )

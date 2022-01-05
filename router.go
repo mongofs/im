@@ -2,7 +2,6 @@ package im
 
 import (
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -29,8 +28,8 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 	now :=time.Now()
 	defer func() {
 		escape := time.Since(now)
-		log.Infof(" | %v|%c[1;40;32m HTTP-%v |%v  %c[0m| %v",
-			request.RemoteAddr,0x1B,request.Method,escape,0x1B,request.URL)
+		s.opt.ServerLogger.Infof("im/router : %s create %s  cost %v  url is %v ",
+			request.RemoteAddr,request.Method,escape,request.URL)
 	}()
 
 	res := &Response{

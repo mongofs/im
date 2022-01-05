@@ -3,6 +3,7 @@ package im
 import (
 	"github.com/mongofs/im/client"
 	"github.com/mongofs/im/validate"
+	"github.com/mongofs/im/log"
 	"github.com/mongofs/im/validate/example"
 )
 
@@ -26,6 +27,7 @@ const (
 
 var DefaultValidate validate.Validater = &example.DefaultValidate{}
 var DefaultReceive client.Receiver = &client.Example{}
+var DefaultLogger log.Logger = &log.DefaultLog{}
 
 type Option struct {
 	ClientHeartBeatInterval int // 用户心跳间隔
@@ -41,6 +43,7 @@ type Option struct {
 	ServerHttpPort     string
 	ServerValidate     validate.Validater
 	ServerReceive      client.Receiver
+	ServerLogger       log.Logger
 
 	//broadcast
 	BroadCastBuffer  int
@@ -60,10 +63,11 @@ func DefaultOption() *Option {
 		ServerBucketNumber: DefaultServerBucketNumber, // 所有
 		ServerRpcPort:      DefaultServerRpcPort,
 		ServerHttpPort:     DefaultServerHttpPort,
-		ServerValidate: DefaultValidate,
-		ServerReceive:  DefaultReceive,
+		ServerValidate:     DefaultValidate,
+		ServerReceive:      DefaultReceive,
+		ServerLogger:       DefaultLogger,
 
-		BroadCastBuffer: DefaultBroadCastBuffer,
+		BroadCastBuffer:  DefaultBroadCastBuffer,
 		BroadCastHandler: DefaultBroadCastHandler,
 	}
 }
@@ -95,6 +99,13 @@ func WithServerValidate(ServerValidate validate.Validater) OptionFunc {
 		b.ServerValidate = ServerValidate
 	}
 }
+
+func WithServerLogger(ServerLogger log.Logger ) OptionFunc {
+	return func(b *Option) {
+		b.ServerLogger = ServerLogger
+	}
+}
+
 
 func WithServerBucketNumber(ServerBucketNumber int) OptionFunc {
 	return func(b *Option) {
@@ -150,15 +161,13 @@ func WithBucketSize(BucketSize int) OptionFunc {
 	}
 }
 
-
-func WithBroadCastBuffer(BroadCastBuffer int)OptionFunc{
+func WithBroadCastBuffer(BroadCastBuffer int) OptionFunc {
 	return func(b *Option) {
 		b.BroadCastBuffer = BroadCastBuffer
 	}
 }
 
-
-func WithBroadCastHandler(BroadCastHandler int)OptionFunc{
+func WithBroadCastHandler(BroadCastHandler int) OptionFunc {
 	return func(b *Option) {
 		b.BroadCastHandler = BroadCastHandler
 	}
