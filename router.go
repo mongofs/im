@@ -57,10 +57,17 @@ func (s *ImSrever) Connection(writer http.ResponseWriter, request *http.Request)
 		res.Data = err.Error()
 		return
 	}
+	// validate failed
 	if err := s.opt.ServerValidate.Validate(token);err !=nil {
 		s.opt.ServerValidate.ValidateFailed(err,cli)
 		return
+	}else {
+		//validate success
+		s.opt.ServerValidate.ValidateSuccess(cli)
 	}
+
+
+	// register to data
 	if err := bs.Register(cli,token);err !=nil {
 		cli.Send([]byte(err.Error()))
 		cli.Offline()

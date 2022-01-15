@@ -28,3 +28,9 @@ func (d *DefaultValidate)ValidateFailed(err error,cli client.Clienter){
 	cli.Send([]byte("user validate is bad"))
 	cli.Offline()
 }
+
+
+func (d *DefaultValidate)ValidateSuccess(cli client.Clienter){
+	// 当用户登录验证失败，逻辑应该在这里来处理
+	cli.Send([]byte("user is online "))
+}
