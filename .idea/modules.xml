@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/websocket.iml" filepath="$PROJECT_DIR$/.idea/websocket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/im.iml" filepath="$PROJECT_DIR$/.idea/im.iml" />
     </modules>
   </component>
 </project>
