@@ -11,10 +11,10 @@ var VERSION = "master"
 
 func (s *ImSrever)Run ()error {
 	wg := errgroup.Group{}
-	wg.Go(s.runhttpServer)
-	wg.Go(s.runGrpcServer)
-	wg.Go(s.monitor)
-	wg.Go(s.PushBroadCast)
+	wg.Go(s.runhttpServer)	// 监控HTTP 服务情况
+	wg.Go(s.runGrpcServer)	// 监控GRPC 服务情况
+	wg.Go(s.monitorOnline)	// 监控全局在线情况
+	wg.Go(s.PushBroadCast)	// 监控全局广播情况
 	return wg.Wait()
 }
 

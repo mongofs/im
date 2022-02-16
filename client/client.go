@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mongofs/im/log"
 	"net/http"
 	"sync"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	im "github.com/mongofs/api/im/v1"
+	"github.com/mongofs/im/log"
 )
 
 
@@ -28,8 +28,8 @@ const (
 
 type Cli struct {
 	lastHeartBeatT int64
-	conn           *websocket.Conn
-	reader 		*http.Request
+	conn            *websocket.Conn
+	reader 			*http.Request
 	token          string
 	closeFunc      sync.Once
 	done           chan struct{}

@@ -35,7 +35,6 @@ type bucket struct {
 	// log
 	log log.Logger
 
-
 	opts * Option
 }
 
@@ -138,6 +137,7 @@ func (h *bucket) OffLine(token string) {
 	}
 }
 
+// 将用户注册到bucket中
 func (h *bucket) Register(cli client.Clienter,token string) error {
 	if cli == nil  {
 		return ErrCliISNil
