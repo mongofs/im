@@ -134,3 +134,9 @@ func TestTickerBroadCast(t *testing.T){
 }
 
 
+
+func TestBroadCastByWTI(t *testing.T){
+
+}
+
+

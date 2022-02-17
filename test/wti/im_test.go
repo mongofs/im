@@ -8,12 +8,14 @@ import (
 	"testing"
 )
 
-// 创建IM测试服务器
+// 创建IM测试服务器，模拟测试im服务器的具体内容。
 func Test_IMServer(t *testing.T) {
-
+	wti.SetSupport()
+	serv := NewFakeImServer()
+	serv.Run()
 }
 
-// 这里就是一个Im聊天服务器
+// this is a temp imserver
 type Fake struct {
 	im *im.ImSrever
 }
@@ -33,9 +35,13 @@ func (f *Fake)ValidateFailed(err error,cli client.Clienter){
 }
 func (f *Fake)ValidateSuccess(cli client.Clienter){
 	// 可以通过header 或者 get query 方式来传参，或者从数据库获取当前用户的tag
-	tags := []string{"v1","v2"}
+	req := cli.Request()
+	res := req.Form["ver"]
+	tags := []string{res[0]}
 	// 调用wti
-	wti.Factory.SetTAG(cli.(*client.Cli),tags...)
+	if err := wti.SetTAG(cli.(*client.Cli),tags...);err != nil {
+		fmt.Println(err)
+	}
 }
 
 func NewFakeImServer() *Fake {

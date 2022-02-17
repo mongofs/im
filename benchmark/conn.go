@@ -12,15 +12,13 @@ import (
 
 func CreateClient (token string){
 	dialer := websocket.Dialer{}
-	conn, _, err := dialer.Dial(fmt.Sprintf(Address+"?token=%s",token), nil)
+	conn, _, err := dialer.Dial(fmt.Sprintf(Address+"?token=%s&ver=%s",token,getVersion()), nil)
 	if nil != err {
 		log.Println(err)
 		return
 	}
 	defer conn.Close()
-
 	counter :=0
-
 	go func() {
 		time.Sleep(10*time.Second)
 		conn.WriteMessage(websocket.TextMessage,[]byte(fmt.Sprintf(" heartbeat %s",token)))
@@ -46,6 +44,15 @@ func CreateClient (token string){
 		default:
 
 		}
+	}
+}
+
+// 获取版本
+func getVersion()string{
+	if time.Now().Unix() %2 == 0 {
+		return "v1"
+	}else{
+		return "v2"
 	}
 }
 

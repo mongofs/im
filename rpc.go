@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	im "github.com/mongofs/api/im/v1"
+	"github.com/mongofs/im/plugins/wti"
 	"time"
 )
 
@@ -67,16 +68,14 @@ func (s *ImSrever) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.Bro
 // 比如 v1 => string ，v2 => []byte，那么v1，v2 就是不相同的两个版本内容。在client上面可以设置用户的连接版本Version，建议在
 // 使用用户
 
-func (s *ImSrever) BroadcastByTarget(ctx context.Context, req *im.BroadcastReq) (*im.BroadcastReply, error) {
-	if len(s.buffer) *10  > 8* cap(s.buffer){
-		return nil,errors.New(fmt.Sprintf("im/rpc: too much message ,buffer length is  %v but cap is %v",len(s.buffer),cap(s.buffer)))
-	}
+func (s *ImSrever) BroadcastByWTI(ctx context.Context, req *im.BroadcastByWTIReq) (*im.BroadcastReply, error) {
+	var err error
 	start  := time.Now()
-	s.buffer <- req
+	err = wti.BroadCastByTarget(req.Data)
 	escape := time.Since(start)
-	s.opt.ServerLogger.Infof(" im/rpc : called  %v method cost time %v ","Broadcast",escape)
+	s.opt.ServerLogger.Infof(" im/rpc : called  %v method cost time %v ","BroadcastByWTI",escape)
 	return &im.BroadcastReply{
 		Size: int64(len(s.buffer)),
-	},nil
+	},err
 }
 

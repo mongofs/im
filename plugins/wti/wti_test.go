@@ -29,7 +29,10 @@ func TestTg_BroadCast(t *testing.T) {
 	// 2. 要在handler方法中调用factory 进行调用SetTAG
 	// 3. 需要建立连接
 	for _,v := range tests {
-		Factory.BroadCast(v.content,v.target...)
+		err := BroadCast(v.content,v.target...)
+		if err !=nil {
+			t.Fatal(err)
+		}
 	}
 	// v1  websocket output : hello content ,and v2,v3 no content output
 	// v1,v2 websocket output : hello content,and v3 no content output
@@ -67,7 +70,10 @@ func TestTg_BroadCastByTarget(t *testing.T) {
 	// 2. 要在handler方法中调用factory 进行调用SetTAG
 	// 3. 需要建立连接
 	for _,v := range tests {
-		Factory.BroadCastByTarget(v.give)
+		err:= BroadCastByTarget(v.give)
+		if err !=nil {
+			t.Fatal(err)
+		}
 	}
 	// v1,v2,v3  websocket output :first v1 | second v2 | third v3
 	// v1,v2,v3  websocket output :hello v1 | hello v2 | hello v3
@@ -92,8 +98,12 @@ func TestTg_UpdateAndF(t *testing.T) {
 	// 2. 要在handler方法中调用factory 进行调用SetTAG
 	// 3. 需要建立连接
 	for _,v := range tests {
-		Factory.Update(v.give) //
-		fmt.Println(Factory.GetClienterTAGs(v.give))
+		err := Update(v.give) //
+		if err !=nil {
+			t.Fatal(err)
+		}
+		res ,_:= GetClienterTAGs(v.give)
+		fmt.Println(res)
 	}
 	// output : []
 }

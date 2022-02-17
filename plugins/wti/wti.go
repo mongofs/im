@@ -5,6 +5,7 @@ package wti
 import (
 	"github.com/mongofs/im/client"
 	"sync"
+	"time"
 )
 
 type tg struct {
@@ -69,7 +70,7 @@ func (t *tg)Update(token ...string){
 func(t *tg)BroadCastByTarget(targetAndContent map[string][]byte){
 	if len(targetAndContent) == 0{ return }
 	for target ,content := range targetAndContent {
-		t.BroadCast(content,target)
+		go t.BroadCast(content,target)
 	}
 }
 
@@ -89,7 +90,7 @@ func (t *tg)GetClienterTAGs(token string)[]string{
 }
 
 // 如果创建时间为0 ，表示没有这个房间
-func (t *tg) GetTAGCreateTime(tag string) int64 {
+func (t *tg) GetTAGCreateTime(tag string) int64{
 	t.rw.RLock()
 	defer t.rw.RUnlock()
 	if v,ok:=t.mp[tag];ok{
@@ -108,9 +109,13 @@ func (t *tg) GetTAGClients(tag string) int64 {
 	return 0
 }
 
-// 删除tag
-func (t *tg) RecycleTAG(tag string) {
+// 删除tag ,这个调用一个大锁将全局锁住清空过去的内容
+func (t *tg) FlushWTI() {
 	t.rw.Lock()
 	defer t.rw.Unlock()
-	delete(t.mp,tag)
+	for k,v := range t.mp{
+		if v.Counter() ==0 && time.Now().Unix() -v.CreateTime() >60 {
+			delete(t.mp,k)
+		}
+	}
 }

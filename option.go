@@ -23,6 +23,9 @@ const (
 
 	DefaultBroadCastHandler = 10
 	DefaultBroadCastBuffer  = 200
+
+
+	PluginWTISupport = false // 是否支持plugin 的wti ，默认为关
 )
 
 var DefaultValidate validate.Validater = &example.DefaultValidate{}
@@ -48,6 +51,8 @@ type Option struct {
 	//broadcast
 	BroadCastBuffer  int
 	BroadCastHandler int
+
+	SupportPluginWTI bool // 是否支持wti插件
 }
 
 func DefaultOption() *Option {

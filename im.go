@@ -2,12 +2,26 @@ package im
 
 import (
 	"context"
+	im "github.com/mongofs/api/im/v1"
 	grpc2 "github.com/mongofs/api/im/v1"
 	"github.com/mongofs/im/bucket"
 	"go.uber.org/atomic"
 	"google.golang.org/grpc"
 	"net/http"
 )
+
+
+type ImSrever struct {
+	http           *http.ServeMux
+	rpc            *grpc.Server
+	bs             []bucket.Bucketer
+	ps             atomic.Int64
+
+	buffer chan *im.BroadcastReq // 全局广播队列
+	cancel func()
+
+	opt *Option
+}
 
 
 func New(opts *Option) *ImSrever {
@@ -54,3 +68,7 @@ func (b *ImSrever) prepareHttpServer() {
 }
 
 
+func (s *ImSrever) bucket(token string) bucket.Bucketer {
+	idx := Index(token,uint32(s.opt.ServerBucketNumber))
+	return s.bs[idx]
+}

@@ -60,6 +60,7 @@ func BenchmarkBroadCast(t *testing.B) {
 
 
 // BenchmarkBroadCast_paraml-6   	    2751	    391783 ns/op
+// BenchmarkBroadCast_paraml-6   	    3105	    494931 ns/op
 func BenchmarkBroadCast_paraml(t *testing.B) {
 	cli := Client()
 	ctx := context.Background()
@@ -68,5 +69,24 @@ func BenchmarkBroadCast_paraml(t *testing.B) {
 	}
 	for i:= 0;i<t.N ;i++ {
 		cli.Broadcast(ctx,data)
+	}
+}
+
+
+// 压测分类广播，大致情况如下
+// BenchmarkBroadCastByWTI-6   	    2905	    411497 ns/op
+// BenchmarkBroadCastByWTI-6   	    3099	    421722 ns/op
+// BenchmarkBroadCastByWTI-6   	    2709	    385287 ns/op
+func BenchmarkBroadCastByWTI(t *testing.B){
+	cli := Client()
+	ctx := context.Background()
+	tests:= &im.BroadcastByWTIReq{Data: map[string][]byte{
+		"v1":[]byte("fucker you v2"),
+		"v2":[]byte("lover you v1"),
+		"v3":[]byte("what are you v1"),
+	}}
+
+	for i:= 0;i<t.N ;i++ {
+		cli.BroadcastByWTI(ctx,tests,)
 	}
 }

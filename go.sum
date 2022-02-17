@@ -89,6 +89,10 @@ github.com/mongofs/api v0.0.0-20211213065031-e14e8c59ae69 h1:OopIMdLpGdo5Xss3P40
 github.com/mongofs/api v0.0.0-20211213065031-e14e8c59ae69/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
 github.com/mongofs/api v0.0.0-20211224030416-43aee6abd907 h1:wEE3/u3rwpnuviTFz50KeB0hX/xXJpAr/sPTiMFIshY=
 github.com/mongofs/api v0.0.0-20211224030416-43aee6abd907/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
+github.com/mongofs/api v1.0.0 h1:uMm8oWQPR0kHJu/NwewURZwwOpClHMG7ApHjAsWe2wQ=
+github.com/mongofs/api v1.0.0/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
+github.com/mongofs/api v1.0.1 h1:r8vUeHTn7p3TqQQa8RDuL4lw+f0ZAnXuDGJ/hSwtIe0=
+github.com/mongofs/api v1.0.1/go.mod h1:9QnZSLGrc6N9FNaGR0wrZ2+MdAsWPFhH9mnFcKxrsEw=
 github.com/mongofs/log v0.0.0-20211119020135-e51080dd6d44 h1:+LdeRyjL/EoKpNAIipVCABxXoiYm/urYpcKMq0auNOg=
 github.com/mongofs/log v0.0.0-20211119020135-e51080dd6d44/go.mod h1:Wv4aMo8tAI+jNC9+SpfA+CH5CmLl9yEXEXY/O/P+Pyg=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=

@@ -20,6 +20,12 @@ func NewGroup()*Group {
 	}
 }
 
+
+func (g *Group) CreateTime ()int64{
+	// should add mutex ,but maybe not
+	return g.createTime
+}
+
 // 给所有用户广播
 func (g *Group) broadCast(content []byte){
 	g.rw.RLock()
