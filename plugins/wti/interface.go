@@ -27,16 +27,26 @@ type WTI interface {
 	// 获取到TAG 的创建时间，系统会判断这个tag创建时间和当前人数来确认是否需要删除这个tag
 	GetTAGCreateTime(tag string) int64
 
-	// 获取到TAG 的在线人数，系统会判断这个tag如果没有在线人数为0 且创建时间大于MAX-wti-create-time ,这个tag就会被回收
-	GetTAGClients(tag string) int64
+	// 获取到所有tag的用户分布
+	Distribute(tags ...string)map[string]*DistributeParam
 
 	// 调用方法的回收房间的策略
 	FlushWTI()
 }
 
+type DistributeParam struct {
+	TagName string
+	Onlines int64
+	CreateTime int64
+}
+
+
+
 // 其他地方将调用这个变量，如果自己公司实现tag需要注入在程序中进行注入
-var factory WTI = newwti()
-var isSupportWTI = atomic.NewBool(false)
+var (
+	factory WTI = newwti()
+	isSupportWTI = atomic.NewBool(false)
+)
 
 func Inject(wti WTI) {
 	factory = wti
@@ -47,7 +57,7 @@ func SetSupport (){
 }
 
 var (
-	ERRNotSupportWTI = errors.New("im/plugins/wti: not set the wti support params")
+	ERRNotSupportWTI = errors.New("im/plugins/wti: you should call the SetSupport func")
 )
 
 func SetTAG(cli *client.Cli, tag ...string) error {
@@ -98,13 +108,15 @@ func GetTAGCreateTime(tag string) (int64, error) {
 	return res, nil
 }
 
-func GetTAGClients(tag string) (int64, error) {
+
+func Distribute() (map[string]*DistributeParam, error) {
 	if isSupportWTI.Load() == false {
-		return 0, ERRNotSupportWTI
+		return nil, ERRNotSupportWTI
 	}
-	res := factory.GetTAGClients(tag)
+	res := factory.Distribute()
 	return res, nil
 }
+
 
 func FlushWTI() error {
 	if isSupportWTI.Load() == false {

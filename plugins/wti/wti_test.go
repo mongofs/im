@@ -2,8 +2,60 @@ package wti
 
 import (
 	"fmt"
+	"github.com/mongofs/im/client"
+	"net/http"
 	"testing"
 )
+
+type MockClient struct {}
+func NewClient()client.Clienter {
+	return &MockClient{}
+}
+
+func (m MockClient) Send(bytes []byte, i ...int64) error {
+	fmt.Printf("Send Called : %v \n\r",string(bytes))
+	return nil
+}
+func (m MockClient) Offline() {
+	panic("implement me")
+}
+func (m MockClient) ResetHeartBeatTime() {
+	panic("implement me")
+}
+func (m MockClient) LastHeartBeat() int64 {
+	panic("implement me")
+}
+func (m MockClient) Token() string {
+	panic("implement me")
+}
+func (m MockClient) Request() *http.Request {
+	panic("implement me")
+}
+
+
+
+
+func TestTg_SetTAG(t *testing.T) {
+	tests := []struct{
+		tag string
+		number int
+	}{
+		{
+			tag: "v1",
+			number: 100,
+		},
+		{
+			tag: "v2",
+			number: 200,
+		},
+	}
+
+	for _,v := range tests{
+		for i :=0 ;i< v.number;i++ {
+			// SetTAG(NewClient(),v.tag) ,todo 待优化
+		}
+	}
+}
 
 // 广播，针对tag进行广播，这也是wti的核心接口，分类广播也是基于这个接口
 func TestTg_BroadCast(t *testing.T) {

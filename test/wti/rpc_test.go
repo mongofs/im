@@ -6,6 +6,7 @@ import (
 	im "github.com/mongofs/api/im/v1"
 	"google.golang.org/grpc"
 	"testing"
+	"time"
 )
 
 
@@ -14,10 +15,18 @@ const (
 	DefaultRpcAddress = "127.0.0.1:8081"
 )
 
+var (
+	cli = Client()
+	ctx = context.Background()
+)
+
+func Client ()im.BasicClient{
+	return im.NewBasicClient(conn)
+}
+
+var conn,_ = grpc.Dial(DefaultRpcAddress,grpc.WithInsecure())
 
 func TestSendMessage(t *testing.T) {
-	cli := Client()
-	ctx := context.Background()
 	tests:= []*im.BroadcastByWTIReq{
 		{
 			Data: map[string][]byte{
@@ -28,7 +37,7 @@ func TestSendMessage(t *testing.T) {
 		},
 	}
 	for _,v := range tests {
-		fmt.Println(cli.BroadcastByWTI(ctx,v,))
+		fmt.Println(cli.WTIBroadcast(ctx,v,))
 	}
 	// output
 	// nil
@@ -37,9 +46,14 @@ func TestSendMessage(t *testing.T) {
 	// nil
 }
 
-var conn,_ = grpc.Dial(DefaultRpcAddress,grpc.WithInsecure())
-
-
-func Client ()im.BasicClient{
-	return im.NewBasicClient(conn)
+func TestDistribute(t *testing.T) {
+	for {
+		distribute,err :=cli.WTIDistribute(ctx,&im.Empty{})
+		if err !=nil {
+			t.Fatal(err)
+		}
+		fmt.Printf("当前用户分布： %+v\n\r ",distribute)
+		time.Sleep(5*time.Second)
+	}
 }
+

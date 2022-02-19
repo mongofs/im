@@ -68,7 +68,9 @@ func (s *ImSrever) Broadcast(ctx context.Context, req *im.BroadcastReq) (*im.Bro
 // 比如 v1 => string ，v2 => []byte，那么v1，v2 就是不相同的两个版本内容。在client上面可以设置用户的连接版本Version，建议在
 // 使用用户
 
-func (s *ImSrever) BroadcastByWTI(ctx context.Context, req *im.BroadcastByWTIReq) (*im.BroadcastReply, error) {
+
+// 进行广播
+func (s *ImSrever) WTIBroadcast(ctx context.Context, req *im.BroadcastByWTIReq) (*im.BroadcastReply, error) {
 	var err error
 	start  := time.Now()
 	err = wti.BroadCastByTarget(req.Data)
@@ -79,3 +81,24 @@ func (s *ImSrever) BroadcastByWTI(ctx context.Context, req *im.BroadcastByWTIReq
 	},err
 }
 
+
+// 获取每个版本多少人
+func (s *ImSrever)  WTIDistribute(ctx context.Context, req *im.Empty) (*im.WTIDistributeReply,error){
+	distribute,err := wti.Distribute()
+	if err != nil {
+		return nil,err
+	}
+
+	var result = map[string]*im.WTIDistribute{}
+	for k,v := range distribute{
+		data := &im.WTIDistribute{
+			Tag:        v.TagName,
+			Number:     v.Onlines,
+			CreateTime: v.CreateTime,
+		}
+		result[k] =data
+	}
+	return &im.WTIDistributeReply{
+		Data: result,
+	},nil
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/mongofs/im/plugins/wti"
 )
 
-
+// 并行的启动，使用goroutine 来进行管理
 func ParallelRun (parallels ... func()error)error{
 	wg := errgroup.Group{}
 	for _,v:= range parallels {
@@ -43,7 +43,6 @@ func (s *ImSrever) monitorWTI() error {
 		}
 	}
 	return nil
-
 }
 
 // 监控rpc 服务

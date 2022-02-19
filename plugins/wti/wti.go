@@ -1,5 +1,3 @@
-// 构建tag 标签的这个功能，主要目标希望将用户分类起来，1000000 * 8 /1024 / 1024  = 7M的内存，额外使用tag包进行封装的话，
-// 预计使用一百万用户的内存需要大概7~8M，这个范围是可以接受的。
 package wti
 
 import (
@@ -23,7 +21,7 @@ func newwti() WTI {
 
 
 // 给用户设置标签
-func (t *tg) SetTAG(cli *client.Cli, tags ...string) {
+func (t *tg)  SetTAG(cli *client.Cli, tags ...string) {
 	if len(tags)== 0 {
 		return
 	}
@@ -99,15 +97,6 @@ func (t *tg) GetTAGCreateTime(tag string) int64{
 	return 0
 }
 
-// 获取到tag的总人数
-func (t *tg) GetTAGClients(tag string) int64 {
-	t.rw.RLock()
-	defer t.rw.RUnlock()
-	if v,ok:=t.mp[tag];ok{
-		return v.Counter()
-	}
-	return 0
-}
 
 // 删除tag ,这个调用一个大锁将全局锁住清空过去的内容
 func (t *tg) FlushWTI() {
@@ -118,4 +107,37 @@ func (t *tg) FlushWTI() {
 			delete(t.mp,k)
 		}
 	}
+}
+
+
+// 获取到tagOnlines 在线用户人数
+func (t *tg) Distribute(tags...  string) map[string]*DistributeParam {
+	var res = map[string]*DistributeParam{}
+	if len(tags) == 0 {
+		t.rw.RLock()
+		for k,v:= range t.mp {
+			tem := &DistributeParam{
+				TagName:    k,
+				Onlines:    v.Counter(),
+				CreateTime: v.createTime,
+			}
+			res[k]=tem
+		}
+		t.rw.RUnlock()
+		return res
+	}
+	t.rw.RLock()
+	for _,tag := range tags {
+		// get the tag
+		if v,ok := t.mp[tag];ok {
+			tem := &DistributeParam{
+				TagName:    tag,
+				Onlines:    v.Counter(),
+				CreateTime: v.createTime,
+			}
+			res[tag]= tem
+		}
+	}
+	t.rw.RUnlock()
+	return res
 }
