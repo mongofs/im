@@ -2,27 +2,35 @@ package im
 
 import (
 	"github.com/mongofs/im/client"
-	"github.com/mongofs/im/validate"
 	"github.com/mongofs/im/log"
+	"github.com/mongofs/im/plugins/wti"
+	"github.com/mongofs/im/validate"
 	"github.com/mongofs/im/validate/example"
 )
 
 const (
+	// 对客户端进行默认参数设置
 	DefaultClientHeartBeatInterval = 120
 	DefaultClientReaderBufferSize  = 1024
 	DefaultClientWriteBufferSize   = 1024
 	DefaultClientBufferSize        = 8
 	DefaultClientMessageType       = 1
 	DefaultClientProtocol          = 1
-	DefaultBucketSize              = 1 << 8 // 256
 
+	// 对分片进行基础设置
+	DefaultBucketSize = 1 << 8 // 256
+
+	// 默认基础的server配置
 	DefaultServerBucketNumber = 1 << 6 // 64
 	DefaultServerRpcPort      = ":8081"
 	DefaultServerHttpPort     = ":8080"
-	DefaultServerBuffer       = 200
 
+	// 设置对广播能力的参数支持
 	DefaultBroadCastHandler = 10
 	DefaultBroadCastBuffer  = 200
+
+	// plugins 的参数支持
+	PluginWTISupport = false // 是否支持WTI 进行扩展
 )
 
 var DefaultValidate validate.Validater = &example.DefaultValidate{}
@@ -30,6 +38,7 @@ var DefaultReceive client.Receiver = &client.Example{}
 var DefaultLogger log.Logger = &log.DefaultLog{}
 
 type Option struct {
+	// client
 	ClientHeartBeatInterval int // 用户心跳间隔
 	ClientReaderBufferSize  int // 用户连接读取buffer
 	ClientWriteBufferSize   int // 用户连接写入buffer
@@ -37,7 +46,10 @@ type Option struct {
 	ClientMessageType       int // 用户发送的数据类型
 	ClientProtocol          int // 压缩协议
 
+	// bucket
 	BucketSize         int // bucket用户
+
+	// server
 	ServerBucketNumber int // 所有
 	ServerRpcPort      string
 	ServerHttpPort     string
@@ -48,6 +60,9 @@ type Option struct {
 	//broadcast
 	BroadCastBuffer  int
 	BroadCastHandler int
+
+	//plugins
+	SupportPluginWTI bool // 是否支持wti插件
 }
 
 func DefaultOption() *Option {
@@ -69,6 +84,9 @@ func DefaultOption() *Option {
 
 		BroadCastBuffer:  DefaultBroadCastBuffer,
 		BroadCastHandler: DefaultBroadCastHandler,
+
+		// 插件支持
+		SupportPluginWTI: PluginWTISupport,
 	}
 }
 
@@ -100,12 +118,11 @@ func WithServerValidate(ServerValidate validate.Validater) OptionFunc {
 	}
 }
 
-func WithServerLogger(ServerLogger log.Logger ) OptionFunc {
+func WithServerLogger(ServerLogger log.Logger) OptionFunc {
 	return func(b *Option) {
 		b.ServerLogger = ServerLogger
 	}
 }
-
 
 func WithServerBucketNumber(ServerBucketNumber int) OptionFunc {
 	return func(b *Option) {
@@ -170,5 +187,15 @@ func WithBroadCastBuffer(BroadCastBuffer int) OptionFunc {
 func WithBroadCastHandler(BroadCastHandler int) OptionFunc {
 	return func(b *Option) {
 		b.BroadCastHandler = BroadCastHandler
+	}
+}
+
+//设置plugin内容
+func WithPluginsWTI(SupportPluginWTI bool) OptionFunc {
+	return func(b *Option) {
+		if SupportPluginWTI {
+			wti.SetSupport()
+		}
+		b.SupportPluginWTI = SupportPluginWTI
 	}
 }

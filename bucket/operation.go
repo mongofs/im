@@ -2,6 +2,7 @@ package bucket
 
 import (
 	"github.com/mongofs/im/client"
+	"github.com/mongofs/im/plugins/wti"
 	"go.uber.org/atomic"
 	"time"
 )
@@ -88,15 +89,21 @@ func (b *bucket)keepAlive (){
 
 
 
-
+// 删除用户
 func (h *bucket)delUser(token string) {
 	h.rw.Lock()
 	delete(h.clis, token)
 	h.rw.Unlock()
 	h.np.Add(-1)
+	// todo 这里需要用个观察者模式
+	wti.Update(token)
 	if h.opts.callback != nil {
 		h.opts.callback()
 	}
 }
+
+
+// 通知到wti
+
 
 
