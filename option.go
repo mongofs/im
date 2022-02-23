@@ -3,9 +3,9 @@ package im
 import (
 	"github.com/mongofs/im/client"
 	"github.com/mongofs/im/log"
+	"github.com/mongofs/im/plugins/validate"
+	"github.com/mongofs/im/plugins/validate/example"
 	"github.com/mongofs/im/plugins/wti"
-	"github.com/mongofs/im/validate"
-	"github.com/mongofs/im/validate/example"
 )
 
 const (

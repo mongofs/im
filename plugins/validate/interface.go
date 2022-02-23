@@ -1,3 +1,6 @@
+// Websocket Validate Interface
+
+
 package validate
 
 import "github.com/mongofs/im/client"

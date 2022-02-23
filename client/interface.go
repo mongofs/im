@@ -21,4 +21,7 @@ type Clienter interface {
 
 	// 获取到用户的请求的链接
 	Request()*http.Request
+
+	// 设置用户接收消息的格式
+	SetMessageType(int)
 }
