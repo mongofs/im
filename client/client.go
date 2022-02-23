@@ -52,6 +52,10 @@ func (c *Cli)SetMessageType(messageType  int){
 	c.messageType = messageType
 }
 
+func (c *Cli)SetProtocol(protocal int){
+	c.protocol =protocal
+}
+
 
 func CreateConn(w http.ResponseWriter, r *http.Request,closeSig chan <- string, buffer, messageType, protocol,
 						readBuffSize, writeBuffSize int, token string, ctx context.Context,handler Receiver,log log.Logger) (Clienter, error) {

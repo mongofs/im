@@ -24,4 +24,7 @@ type Clienter interface {
 
 	// 设置用户接收消息的格式
 	SetMessageType(int)
+
+	// 设置用户接收消息的协议：
+	SetProtocol( int)
 }
