@@ -1,4 +1,4 @@
-// WTI 全称为 websocket Target interface ，就是长连接标记接口，目前系统提供的解决方案为
+// WTI 全称为 websocket Target interface ，就是长连接标记接口，目前系统提供的解决方案为二维码map进行存储
 package wti
 
 import (
@@ -10,21 +10,24 @@ import (
 //  WebSocket Target Interface
 type WTI interface {
 	// 给用户打上标签
-	SetTAG(cli *client.Cli, tag ...string)
+	SetTAG(cli client.Clienter, tags ...string)
+
+	// 删除用户的标签
+	DelTAG(cli client.Clienter, tags ...string)
 
 	// 如果用户下线将会通知调用这个方法
 	Update(token ...string)
 
-	// 广播到包含tag 对象
+	// 广播到包含标签对象
 	BroadCast(content []byte, tag ...string)
 
 	// 广播所有内容
 	BroadCastByTarget(targetAndContent map[string][]byte)
 
-	// 获取某个用户的所有的tag
+	// 获取某个用户的所有的标签
 	GetClienterTAGs(token string) []string
 
-	// 获取到TAG 的创建时间，系统会判断这个tag创建时间和当前人数来确认是否需要删除这个tag
+	// 获取到标签的创建时间
 	GetTAGCreateTime(tag string) int64
 
 	// 获取到所有tag的用户分布
@@ -60,11 +63,19 @@ var (
 	ERRNotSupportWTI = errors.New("im/plugins/wti: you should call the SetSupport func")
 )
 
-func SetTAG(cli *client.Cli, tag ...string) error {
+func SetTAG(cli client.Clienter, tag ...string) error {
 	if isSupportWTI.Load() == false {
 		return ERRNotSupportWTI
 	}
 	factory.SetTAG(cli, tag...)
+	return nil
+}
+
+func DelTAG(cli client.Clienter, tag ...string) error {
+	if isSupportWTI.Load() == false {
+		return ERRNotSupportWTI
+	}
+	factory.DelTAG(cli, tag...)
 	return nil
 }
 

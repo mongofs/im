@@ -8,14 +8,14 @@ import (
 
 type Group struct {
 	rw *sync.RWMutex
-	set  map[string]*client.Cli
+	set  map[string]client.Clienter
 	createTime int64
 }
 
 func NewGroup()*Group {
 	return &Group{
 		rw:  &sync.RWMutex{},
-		set: map[string]*client.Cli{},
+		set: map[string]client.Clienter{},
 		createTime: time.Now().Unix(),
 	}
 }
@@ -36,7 +36,7 @@ func (g *Group) broadCast(content []byte){
 }
 
 // 添加cli
-func (g *Group) addCli(clis ... *client.Cli){
+func (g *Group) addCli(clis ...client.Clienter){
 	g.rw.Lock()
 	defer g.rw.Unlock()
 	for _,v := range clis{

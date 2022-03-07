@@ -21,7 +21,7 @@ func newwti() WTI {
 
 
 // 给用户设置标签
-func (t *tg)  SetTAG(cli *client.Cli, tags ...string) {
+func (t *tg)  SetTAG(cli client.Clienter, tags ...string) {
 	if len(tags)== 0 {
 		return
 	}
@@ -33,6 +33,21 @@ func (t *tg)  SetTAG(cli *client.Cli, tags ...string) {
 			 t.mp[tag].addCli(cli)
 		}else { // wti exist
 			group.addCli(cli)
+		}
+	}
+}
+
+
+// 删除用户的标签
+func (t *tg) DelTAG(cli client.Clienter, tags ...string){
+	if len(tags) == 0 {return }
+	t.rw.Lock()
+	defer t.rw.Unlock()
+	for _,tag := range tags {
+		if group,ok := t.mp[tag];!ok{
+			continue
+		}else {
+			group.rmCli(cli.Token())
 		}
 	}
 }

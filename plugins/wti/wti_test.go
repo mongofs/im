@@ -3,13 +3,16 @@ package wti
 import (
 	"fmt"
 	"github.com/mongofs/im/client"
+
 	"net/http"
 	"testing"
 )
 
-type MockClient struct {}
-func NewClient()client.Clienter {
-	return &MockClient{}
+type MockClient struct {
+	token string
+}
+func NewClient(token string )client.Clienter {
+	return &MockClient{token: token}
 }
 
 func (m MockClient) Send(bytes []byte, i ...int64) error {
@@ -26,11 +29,59 @@ func (m MockClient) LastHeartBeat() int64 {
 	panic("implement me")
 }
 func (m MockClient) Token() string {
-	panic("implement me")
+	return m.token
 }
 func (m MockClient) Request() *http.Request {
 	panic("implement me")
 }
+func (m MockClient) SetMessageType(i int) {
+	panic("implement me")
+}
+
+func (m MockClient) SetProtocol(i int) {
+	panic("implement me")
+}
+
+func TestTg_DelTAG(t *testing.T) {
+	SetSupport()
+	tests := []struct{
+		token string
+		tag []string
+	}{
+		{
+			token: "1234",
+			tag: []string{"v1","v2","v3"},
+		},
+		{
+			token: "12345",
+			tag: []string{"v1","v2"},
+		},
+	}
+	// 先设置全局变量
+	for _,v := range tests{
+		SetTAG(NewClient(v.token),v.tag...) // 将每个client 进行设置tag
+	}
+	dis,err := Distribute()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for k,v:=range  dis{
+		fmt.Println(k,v)
+	}
+
+	// 删除对应的tag
+	for _,v := range tests{
+		DelTAG(NewClient(v.token),v.tag[0])
+	}
+	dis,err = Distribute()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for k,v:=range  dis{
+		fmt.Println("after delete tag zero",k,v)
+	}
+}
+
 
 
 
@@ -52,7 +103,7 @@ func TestTg_SetTAG(t *testing.T) {
 
 	for _,v := range tests{
 		for i :=0 ;i< v.number;i++ {
-			// SetTAG(NewClient(),v.tag) ,todo 待优化
+			 SetTAG(NewClient("1234"),v.tag) //,todo 待优化
 		}
 	}
 }
