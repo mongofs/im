@@ -128,9 +128,11 @@ func (c *Cli) LastHeartBeat() int64 {
 
 func (c *Cli) send(data []byte) error{
 	if len(c.buf) *10 > cap(c.buf) * 7 {
-		// 记录当前用户被丢弃的信息
-		//c.log.Infof(fmt.Sprintf("im/client: 用户消息通道堵塞 , token is %s ,len %v but user cap is %v",c.token,len(c.buf),cap(c.buf)))
 
+		// 用户如果消息通道不通顺的话，主动将用户下线
+		c.log.Infof(fmt.Sprintf("im/client: 用户被下线 , token is %s ,len %v but user cap is %v",c.token,len(c.buf),cap(c.buf)))
+		// 记录当前用户被丢弃的信息
+		c.Offline()
 		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
 	}
 
