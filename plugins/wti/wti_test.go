@@ -83,9 +83,6 @@ func TestTg_DelTAG(t *testing.T) {
 }
 
 
-
-
-
 func TestTg_SetTAG(t *testing.T) {
 	tests := []struct{
 		tag string
@@ -143,8 +140,6 @@ func TestTg_BroadCast(t *testing.T) {
 
 }
 
-
-
 // 主要应对数据发送的时候版本的问题，比如某一条数据由于协议更改需要向上兼容老的版本,因为这是应用层的内容
 // 所以使用wti 接口来进行兼容处理。避免进行内容的感染
 func TestTg_BroadCastByTarget(t *testing.T) {
@@ -182,9 +177,6 @@ func TestTg_BroadCastByTarget(t *testing.T) {
 	// v1,v2,v3  websocket output :hello v1 | hello v2 | hello v3
 }
 
-
-
-
 // 主要应对数据发送的时候版本的问题，比如某一条数据由于协议更改需要向上兼容老的版本,因为这是应用层的内容
 // 所以使用wti 接口来进行兼容处理。避免进行内容的感染
 func TestTg_UpdateAndF(t *testing.T) {
@@ -209,4 +201,9 @@ func TestTg_UpdateAndF(t *testing.T) {
 		fmt.Println(res)
 	}
 	// output : []
+}
+
+// 对wti进行压力测试
+func BenchmarkSetTAG(b *testing.B) {
+
 }

@@ -53,14 +53,13 @@ func (t *tg) DelTAG(cli client.Clienter, tags ...string){
 }
 
 
-// 给某一个标签的群体进行广播
+// BroadCast 给某一个标签的群体进行广播
 func (t *tg) BroadCast(content []byte,tags ...string) {
 	if len(tags)== 0 {
 		return
 	}
 	t.rw.RLock()
 	defer t.rw.RUnlock()
-
 	for _,tag := range tags{
 		if group,ok := t.mp[tag];ok{
 			group.broadCast(content)
@@ -83,7 +82,8 @@ func (t *tg)Update(token ...string){
 func(t *tg)BroadCastByTarget(targetAndContent map[string][]byte){
 	if len(targetAndContent) == 0{ return }
 	for target ,content := range targetAndContent {
-		go t.BroadCast(content,target)
+		// 将goroutine变成顺序写
+		 t.BroadCast(content,target)
 	}
 }
 
