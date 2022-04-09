@@ -98,6 +98,10 @@ func (c *Cli) upgrade(w http.ResponseWriter, r *http.Request, readerSize, writeS
 }
 
 func (c *Cli) Send(data []byte, i ...int64) error {
+	if len(c.buf) *10 > cap(c.buf) * 7 {
+		// 用户如果消息通道不通顺的话，主动将用户下线
+		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
+	}
 	var (
 		sid int64
 		d   []byte
@@ -129,7 +133,6 @@ func (c *Cli) LastHeartBeat() int64 {
 func (c *Cli) send(data []byte) error{
 	if len(c.buf) *10 > cap(c.buf) * 7 {
 		// 用户如果消息通道不通顺的话，主动将用户下线
-		c.log.Infof(fmt.Sprintf("im/client: 用户被下线 , token is %s ,len %v but user cap is %v",c.token,len(c.buf),cap(c.buf)))
 		return errors.New(fmt.Sprintf("im/client: too much data , user len %v but user cap is %s",len(c.buf),cap(c.buf)))
 	}
 
