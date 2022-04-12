@@ -28,6 +28,9 @@ func (s *ImSrever) SendMessage(ctx context.Context, req *im.SendMessageReq) (*im
 	start  := time.Now()
 	bs:= s.bucket(req.Token)
 	err := bs.Send(req.Data,req.Token,false)
+	if err != nil {
+		// todo 记录日志
+	}
 	escape := time.Since(start)
 	s.opt.ServerLogger.Infof(" im/rpc : called  %v method cost time %v ","SendMessage",escape)
 
@@ -42,6 +45,9 @@ func (s *ImSrever) SendMessageToMultiple(ctx context.Context, req *im.SendMessag
 	for _,token := range req.Token{
 		bs:= s.bucket(token)
 		err = bs.Send(req.Data,token,false)
+		if err !=nil {
+			// todo 记录日志
+		}
 	}
 	escape := time.Since(start)
 	s.opt.ServerLogger.Infof(" im/rpc : called  %v method cost time %v ","SendMessageToMultiple",escape)

@@ -31,7 +31,10 @@ func (g *Group) broadCast(content []byte){
 	g.rw.RLock()
 	defer g.rw.RUnlock()
 	for _,v := range g.set {
-		v.Send(content)
+		err:= v.Send(content)
+		if err!= nil {
+			// todo 这里需要加上日志
+		}
 	}
 }
 
